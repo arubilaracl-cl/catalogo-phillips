@@ -1,0 +1,16 @@
+{
+  "name": "catalogo-phillips-safety",
+  "version": "1.0.0",
+  "description": "Catálogo Phillips Safety con precios en vivo desde Google Sheets, cotizador y conversión a CLP",
+  "main": "server.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "papaparse": "^5.5.4"
+  }
+}

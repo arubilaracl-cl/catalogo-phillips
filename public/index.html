@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Catálogo Phillips Safety — Piloto</title>
+<style>
+  :root{
+    --navy:#0F2740; --green:#1F6D4C; --ink:#20313F; --ink-soft:#5B707C;
+    --line:#D9E2E6; --bg:#F4F7F8; --mono: 'SFMono-Regular', Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); font-family:var(--sans); color:var(--ink);}
+  header{background:var(--navy); color:#fff; padding:16px 24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;}
+  header h1{margin:0; font-size:17px;}
+  header .estadoTC{font-size:12px; color:#B7C7D4;}
+  main{max-width:1200px; margin:0 auto; padding:20px;}
+
+  .aviso{ background:#FFF6E9; border:1px solid #F0D9A8; color:#8A5A00; padding:12px 14px; border-radius:8px; font-size:13px; margin-bottom:16px; line-height:1.6; }
+  .aviso.error{ background:#FCEEEC; border-color:#E3B3A9; color:#8A2E20; }
+  .aviso b{ display:block; margin-bottom:4px; }
+
+  .barraSuperior{ display:flex; gap:16px; align-items:flex-end; flex-wrap:wrap; margin-bottom:18px; background:#fff; border:1px solid var(--line); border-radius:10px; padding:14px 16px; }
+  .campo label{ display:block; font-size:10.5px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.03em; margin-bottom:3px; }
+  .campo input{ padding:7px 9px; border:1px solid var(--line); border-radius:6px; font-family:var(--mono); font-size:13px; width:110px; }
+  .buscador{flex:1; min-width:180px;}
+  .buscador input{ width:100%; }
+
+  .seccionTitulo{ font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--green); margin:26px 0 10px; padding-bottom:6px; border-bottom:2px solid var(--line); }
+
+  .grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:14px; }
+  .prodCard{ background:#fff; border:1px solid var(--line); border-radius:10px; padding:14px; display:flex; flex-direction:column; }
+  .prodCard .sku{ font-family:var(--mono); font-size:11px; color:var(--ink-soft); }
+  .prodCard .nombre{ font-size:13.5px; font-weight:600; margin:4px 0 6px; line-height:1.3; }
+  .prodCard .desc{ font-size:11.5px; color:var(--ink-soft); line-height:1.5; flex:1; margin-bottom:8px; }
+  .prodCard .precio{ font-size:17px; font-weight:800; color:var(--green); margin-bottom:8px; }
+  .prodCard .precio .usd{ font-size:10.5px; color:var(--ink-soft); font-weight:400; display:block; margin-top:4px; }
+  .prodCard .filaPrecio{ display:flex; justify-content:space-between; align-items:baseline; font-size:12.5px; font-weight:400; color:var(--ink-soft); }
+  .prodCard .filaPrecio.sec{ font-size:11px; }
+  .prodCard .filaPrecio.total{ font-size:16px; font-weight:800; color:var(--green); border-top:1px solid var(--line); margin-top:4px; padding-top:4px; }
+  .prodCard .filaPrecio b{ color:var(--ink); }
+  .prodCard .agregarRow{ display:flex; gap:6px; }
+  .prodCard .agregarRow input{ width:52px; padding:6px; border:1px solid var(--line); border-radius:6px; text-align:center; }
+  .prodCard .agregarRow button{ flex:1; background:var(--navy); color:#fff; border:none; border-radius:6px; padding:7px 10px; font-size:12.5px; cursor:pointer; }
+  .prodCard .agregarRow button:hover{ filter:brightness(1.15); }
+
+  #carritoFlotante{
+    position:fixed; bottom:20px; right:20px; background:var(--navy); color:#fff; padding:12px 18px;
+    border-radius:30px; box-shadow:0 4px 14px rgba(0,0,0,.2); cursor:pointer; font-size:14px; font-weight:600; z-index:50;
+  }
+  #carritoFlotante .cant{ background:var(--green); border-radius:50%; padding:2px 8px; margin-left:8px; font-size:12px; }
+
+  #modalCarrito{
+    display:none; position:fixed; inset:0; background:rgba(15,39,64,.5); z-index:100; align-items:center; justify-content:center; padding:20px;
+  }
+  #modalCarrito.open{ display:flex; }
+  .cajaCarrito{ background:#fff; border-radius:12px; padding:22px; max-width:620px; width:100%; max-height:88vh; overflow:auto; }
+  .cajaCarrito h2{ margin-top:0; font-size:16px; }
+  table.tablaCarrito{ width:100%; border-collapse:collapse; font-size:12.5px; margin-bottom:14px; }
+  table.tablaCarrito th{ text-align:left; font-size:10.5px; color:var(--ink-soft); text-transform:uppercase; padding:5px; border-bottom:1px solid var(--line); }
+  table.tablaCarrito td{ padding:6px 5px; border-bottom:1px solid #EEF2F3; vertical-align:middle; }
+  table.tablaCarrito input.cantEdit{ width:46px; padding:4px; text-align:center; border:1px solid var(--line); border-radius:5px; }
+  .quitarBtn{ background:none; border:none; color:#B23A34; cursor:pointer; font-size:12px; }
+  .totalCarrito{ text-align:right; font-size:16px; font-weight:800; color:var(--green); margin-bottom:16px; }
+
+  .formCliente{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+  .formCliente .full{ grid-column:1/-1; }
+  .formCliente label{ display:block; font-size:10.5px; color:var(--ink-soft); margin-bottom:3px; }
+  .formCliente input, .formCliente textarea{ width:100%; padding:7px 9px; border:1px solid var(--line); border-radius:6px; font-size:13px; }
+
+  .accionesCarrito{ display:flex; gap:8px; flex-wrap:wrap; }
+  .accionesCarrito button{ padding:10px 16px; border-radius:8px; border:1px solid var(--navy); background:var(--navy); color:#fff; font-size:13.5px; cursor:pointer; }
+  .accionesCarrito button.secondary{ background:#fff; color:var(--navy); }
+  .cerrarModal{ float:right; background:none; border:none; font-size:18px; cursor:pointer; color:var(--ink-soft); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🦺 Catálogo Phillips Safety — Piloto (Fase 1)</h1>
+  <div class="estadoTC" id="estadoTC">Cargando tipo de cambio…</div>
+</header>
+
+<main>
+  <div class="aviso" id="avisoFase1">
+    <b>Esto es un piloto de validación (Fase 1) — ahora corriendo con backend propio</b>
+    El servidor (desplegado en Render) lee en vivo la pestaña "Radiation - Apparel" de tu planilla de Phillips. Aún no incluye fotos de producto (pendiente de autorización de Phillips), ni las demás ~50 categorías, ni el envío automático por Twilio — el botón de "Confirmar pedido" arma el resumen y abre tu correo con todo prellenado para que lo revises antes de escalarlo.
+  </div>
+  <div id="avisos"></div>
+
+  <div class="barraSuperior">
+    <div class="campo">
+      <label>Factor importación (%)</label>
+      <input type="number" id="factorImportacion" value="15" min="0" step="1">
+    </div>
+    <div class="campo">
+      <label>Margen (%)</label>
+      <input type="number" id="margen" value="30" min="0" step="1">
+    </div>
+    <div class="campo">
+      <label>Tipo de cambio (CLP x USD)</label>
+      <input type="number" id="tipoCambio" value="950" step="1">
+    </div>
+    <div class="buscador">
+      <label>Buscar producto</label>
+      <input type="text" id="buscador" placeholder="Nombre, SKU o descripción…">
+    </div>
+    <div class="campo">
+      <label>&nbsp;</label>
+      <button id="btnRefrescar" style="padding:7px 12px; border-radius:6px; border:1px solid var(--navy); background:#fff; color:var(--navy); cursor:pointer; font-size:12.5px;">↻ Refrescar precios</button>
+    </div>
+  </div>
+
+  <div id="catalogo">Cargando catálogo…</div>
+</main>
+
+<div id="carritoFlotante" onclick="abrirCarrito()">🛒 Cotización <span class="cant" id="cantCarrito">0</span></div>
+
+<div id="modalCarrito">
+  <div class="cajaCarrito">
+    <button class="cerrarModal" onclick="cerrarCarrito()">✕</button>
+    <h2>Tu cotización</h2>
+    <table class="tablaCarrito">
+      <thead><tr><th>Producto</th><th>Cant.</th><th>Neto unit.</th><th>Subtotal (con IVA)</th><th></th></tr></thead>
+      <tbody id="tbodyCarrito"></tbody>
+    </table>
+    <div class="totalCarrito" id="totalCarrito">Total: $0</div>
+
+    <div class="formCliente">
+      <div><label>Nombre</label><input id="clienteNombre"></div>
+      <div><label>Empresa</label><input id="clienteEmpresa"></div>
+      <div><label>Email</label><input id="clienteEmail" type="email"></div>
+      <div><label>Teléfono</label><input id="clienteTelefono"></div>
+      <div class="full"><label>Comentarios</label><textarea id="clienteComentarios" rows="2"></textarea></div>
+    </div>
+
+    <div class="accionesCarrito">
+      <button onclick="confirmarPedido()">Confirmar pedido</button>
+      <button class="secondary" onclick="cerrarCarrito()">Seguir viendo catálogo</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let productos = []; // {seccion, sku, modelo, descripcion, precioUsd}
+let carrito = []; // {sku, nombre, precioClp, cantidad}
+
+async function cargarTipoCambio(){
+  try{
+    const res = await fetch('/api/tipo-cambio');
+    const data = await res.json();
+    document.getElementById('tipoCambio').value = data.valor;
+    document.getElementById('estadoTC').textContent = data.fecha
+      ? `Dólar observado hoy (${data.fecha}): $${data.valor} CLP`
+      : `Tipo de cambio de respaldo: $${data.valor} CLP (no se pudo confirmar la fecha)`;
+  }catch(e){
+    console.error(e);
+    document.getElementById('estadoTC').textContent = 'No se pudo obtener el tipo de cambio automático — ajústalo manualmente arriba.';
+  }
+}
+
+// ---------- carga del catálogo (ya parseado por el servidor) ----------
+async function cargarCatalogo(){
+  const avisosEl = document.getElementById('avisos');
+  try{
+    const res = await fetch('/api/productos');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    productos = data.productos || [];
+    (data.avisos || []).forEach(msg => {
+      avisosEl.innerHTML += `<div class="aviso error"><b>${msg}</b></div>`;
+    });
+  }catch(e){
+    console.error(e);
+    avisosEl.innerHTML += `<div class="aviso error"><b>No se pudo cargar el catálogo desde el servidor</b>${e.message || e}</div>`;
+  }
+  renderCatalogo();
+}
+
+// ---------- render del catálogo ----------
+function escapeHtml(s){
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// calcula el precio en 3 pasos:
+//   1) costo distribuidor USD -> costo en bodega Chile (aplica factor de importación, luego convierte a CLP)
+//   2) costo en bodega -> Valor Neto (aplica tu margen)
+//   3) Valor Neto -> IVA (19%) y Total
+function precioClpDe(producto){
+  const factorImport = parseFloat(document.getElementById('factorImportacion').value) || 0;
+  let margen = parseFloat(document.getElementById('margen').value) || 0;
+  if (margen >= 100) margen = 99; // evita división por cero o negativa
+  const tc = parseFloat(document.getElementById('tipoCambio').value) || 0;
+
+  const costoBodegaUsd = producto.precioUsd * (1 + factorImport / 100);
+  const costoBodegaClp = costoBodegaUsd * tc;
+  const neto = Math.round(costoBodegaClp / (1 - margen / 100));
+  const iva = Math.round(neto * 0.19);
+  const total = neto + iva;
+  return { neto, iva, total };
+}
+
+function renderCatalogo(){
+  const cont = document.getElementById('catalogo');
+  const filtro = (document.getElementById('buscador').value || '').toLowerCase().trim();
+
+  const filtrados = productos.filter(p => {
+    if (!filtro) return true;
+    return (p.sku + ' ' + p.modelo + ' ' + p.descripcion).toLowerCase().includes(filtro);
+  });
+
+  if (!filtrados.length){
+    cont.innerHTML = '<p style="color:var(--ink-soft);">No se encontraron productos.</p>';
+    return;
+  }
+
+  const porSeccion = {};
+  filtrados.forEach(p => {
+    if (!porSeccion[p.seccion]) porSeccion[p.seccion] = [];
+    porSeccion[p.seccion].push(p);
+  });
+
+  let html = '';
+  Object.keys(porSeccion).forEach(seccion => {
+    html += `<div class="seccionTitulo">${escapeHtml(seccion)}</div><div class="grid">`;
+    porSeccion[seccion].forEach(p => {
+      const precios = precioClpDe(p);
+      html += `
+        <div class="prodCard">
+          <div class="sku">${escapeHtml(p.sku)}</div>
+          <div class="nombre">${escapeHtml(p.modelo || p.sku)}</div>
+          <div class="desc">${escapeHtml(p.descripcion)}</div>
+          <div class="precio">
+            <div class="filaPrecio"><span>Valor Neto</span><b>$${precios.neto.toLocaleString('es-CL')}</b></div>
+            <div class="filaPrecio sec"><span>IVA (19%)</span><span>$${precios.iva.toLocaleString('es-CL')}</span></div>
+            <div class="filaPrecio total"><span>Total</span><b>$${precios.total.toLocaleString('es-CL')}</b></div>
+            <span class="usd">Costo distribuidor: US$${p.precioUsd.toFixed(2)}</span>
+          </div>
+          <div class="agregarRow">
+            <input type="number" min="1" value="1" class="cantInput" data-sku="${escapeHtml(p.sku)}">
+            <button onclick="agregarAlCarrito('${escapeHtml(p.sku).replace(/'/g, "\\'")}')">Agregar</button>
+          </div>
+        </div>`;
+    });
+    html += `</div>`;
+  });
+  cont.innerHTML = html;
+}
+
+document.getElementById('buscador').addEventListener('input', renderCatalogo);
+document.getElementById('margen').addEventListener('input', renderCatalogo);
+document.getElementById('factorImportacion').addEventListener('input', renderCatalogo);
+document.getElementById('tipoCambio').addEventListener('input', renderCatalogo);
+
+// ---------- carrito ----------
+function agregarAlCarrito(sku){
+  const producto = productos.find(p => p.sku === sku);
+  if (!producto) return;
+  const inputCant = document.querySelector(`.cantInput[data-sku="${CSS.escape(sku)}"]`);
+  const cantidad = Math.max(1, parseInt(inputCant?.value) || 1);
+  const precios = precioClpDe(producto);
+
+  const existente = carrito.find(i => i.sku === sku);
+  if (existente){
+    existente.cantidad += cantidad;
+  } else {
+    carrito.push({ sku, nombre: producto.modelo || producto.sku, neto: precios.neto, iva: precios.iva, total: precios.total, cantidad });
+  }
+  actualizarContadorCarrito();
+}
+
+function actualizarContadorCarrito(){
+  const total = carrito.reduce((s, i) => s + i.cantidad, 0);
+  document.getElementById('cantCarrito').textContent = total;
+}
+
+function abrirCarrito(){
+  renderCarrito();
+  document.getElementById('modalCarrito').classList.add('open');
+}
+function cerrarCarrito(){
+  document.getElementById('modalCarrito').classList.remove('open');
+}
+
+function renderCarrito(){
+  const tbody = document.getElementById('tbodyCarrito');
+  tbody.innerHTML = carrito.map((item, idx) => `
+    <tr>
+      <td>${escapeHtml(item.nombre)}</td>
+      <td><input class="cantEdit" type="number" min="1" value="${item.cantidad}" data-idx="${idx}"></td>
+      <td>$${item.neto.toLocaleString('es-CL')}</td>
+      <td>$${(item.total * item.cantidad).toLocaleString('es-CL')}</td>
+      <td><button class="quitarBtn" data-idx="${idx}">Quitar</button></td>
+    </tr>`).join('') || '<tr><td colspan="5" style="color:var(--ink-soft);">Tu cotización está vacía.</td></tr>';
+
+  tbody.querySelectorAll('.cantEdit').forEach(inp => {
+    inp.addEventListener('input', () => {
+      carrito[+inp.dataset.idx].cantidad = Math.max(1, parseInt(inp.value) || 1);
+      renderCarrito();
+      actualizarContadorCarrito();
+    });
+  });
+  tbody.querySelectorAll('.quitarBtn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      carrito.splice(+btn.dataset.idx, 1);
+      renderCarrito();
+      actualizarContadorCarrito();
+    });
+  });
+
+  const totalNeto = carrito.reduce((s, i) => s + i.neto * i.cantidad, 0);
+  const totalIva = carrito.reduce((s, i) => s + i.iva * i.cantidad, 0);
+  const totalGeneral = carrito.reduce((s, i) => s + i.total * i.cantidad, 0);
+  document.getElementById('totalCarrito').innerHTML =
+    `Neto: $${totalNeto.toLocaleString('es-CL')} &nbsp;·&nbsp; IVA: $${totalIva.toLocaleString('es-CL')} &nbsp;·&nbsp; <b>Total: $${totalGeneral.toLocaleString('es-CL')}</b>`;
+}
+
+function confirmarPedido(){
+  if (!carrito.length){ alert('Tu cotización está vacía.'); return; }
+  const nombre = document.getElementById('clienteNombre').value.trim();
+  const email = document.getElementById('clienteEmail').value.trim();
+  if (!nombre || !email){ alert('Completa al menos tu nombre y correo.'); return; }
+
+  const empresa = document.getElementById('clienteEmpresa').value.trim();
+  const telefono = document.getElementById('clienteTelefono').value.trim();
+  const comentarios = document.getElementById('clienteComentarios').value.trim();
+
+  const lineas = carrito.map(i =>
+    `- ${i.nombre} | Cant: ${i.cantidad} | Neto unit.: $${i.neto.toLocaleString('es-CL')} | Subtotal Neto: $${(i.neto*i.cantidad).toLocaleString('es-CL')} | Subtotal Total: $${(i.total*i.cantidad).toLocaleString('es-CL')}`
+  );
+  const totalNeto = carrito.reduce((s, i) => s + i.neto * i.cantidad, 0);
+  const totalIva = carrito.reduce((s, i) => s + i.iva * i.cantidad, 0);
+  const totalGeneral = carrito.reduce((s, i) => s + i.total * i.cantidad, 0);
+
+  const cuerpo = [
+    `Nueva solicitud de cotización — Phillips Safety`,
+    ``,
+    `Cliente: ${nombre}`,
+    `Empresa: ${empresa || '(no indicado)'}`,
+    `Email: ${email}`,
+    `Teléfono: ${telefono || '(no indicado)'}`,
+    ``,
+    `ITEMS:`,
+    ...lineas,
+    ``,
+    `NETO: $${totalNeto.toLocaleString('es-CL')}`,
+    `IVA (19%): $${totalIva.toLocaleString('es-CL')}`,
+    `TOTAL: $${totalGeneral.toLocaleString('es-CL')}`,
+    ``,
+    comentarios ? `Comentarios del cliente: ${comentarios}` : ''
+  ].filter(Boolean).join('\n');
+
+  const asunto = encodeURIComponent(`Cotización Phillips Safety — ${nombre}`);
+  const cuerpoCodificado = encodeURIComponent(cuerpo);
+  window.location.href = `mailto:?subject=${asunto}&body=${cuerpoCodificado}`;
+}
+
+// ---------- init ----------
+document.getElementById('btnRefrescar').addEventListener('click', async () => {
+  const btn = document.getElementById('btnRefrescar');
+  const original = btn.textContent;
+  btn.textContent = 'Actualizando…';
+  btn.disabled = true;
+  try{
+    const res = await fetch('/api/productos/refrescar', { method: 'POST' });
+    const data = await res.json();
+    productos = data.productos || [];
+    renderCatalogo();
+    btn.textContent = '✓ Actualizado';
+  }catch(e){
+    btn.textContent = 'Error al actualizar';
+  }
+  setTimeout(() => { btn.textContent = original; btn.disabled = false; }, 1800);
+});
+
+cargarTipoCambio();
+cargarCatalogo();
+</script>
+</body>
+</html>
