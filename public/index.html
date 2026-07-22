@@ -89,18 +89,6 @@
   <div id="avisos"></div>
 
   <div class="barraSuperior">
-    <div class="campo">
-      <label>Factor importación (%)</label>
-      <input type="number" id="factorImportacion" value="15" min="0" step="1">
-    </div>
-    <div class="campo">
-      <label>Margen (%)</label>
-      <input type="number" id="margen" value="30" min="0" step="1">
-    </div>
-    <div class="campo">
-      <label>Tipo de cambio (CLP x USD)</label>
-      <input type="number" id="tipoCambio" value="950" step="1">
-    </div>
     <div class="buscador">
       <label>Buscar producto</label>
       <input type="text" id="buscador" placeholder="Nombre, SKU o descripción…">
@@ -149,13 +137,12 @@ async function cargarTipoCambio(){
   try{
     const res = await fetch('/api/tipo-cambio');
     const data = await res.json();
-    document.getElementById('tipoCambio').value = data.valor;
     document.getElementById('estadoTC').textContent = data.fecha
       ? `Dólar observado hoy (${data.fecha}): $${data.valor} CLP`
-      : `Tipo de cambio de respaldo: $${data.valor} CLP (no se pudo confirmar la fecha)`;
+      : `Tipo de cambio de respaldo: $${data.valor} CLP`;
   }catch(e){
     console.error(e);
-    document.getElementById('estadoTC').textContent = 'No se pudo obtener el tipo de cambio automático — ajústalo manualmente arriba.';
+    document.getElementById('estadoTC').textContent = '';
   }
 }
 
@@ -182,22 +169,10 @@ function escapeHtml(s){
   return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
-// calcula el precio en 3 pasos:
-//   1) costo distribuidor USD -> costo en bodega Chile (aplica factor de importación, luego convierte a CLP)
-//   2) costo en bodega -> Valor Neto (aplica tu margen)
-//   3) Valor Neto -> IVA (19%) y Total
+// el servidor ya calcula Neto/IVA/Total (con el margen y el factor de importación,
+// que nunca se envían al navegador) — acá solo se lee ese resultado
 function precioClpDe(producto){
-  const factorImport = parseFloat(document.getElementById('factorImportacion').value) || 0;
-  let margen = parseFloat(document.getElementById('margen').value) || 0;
-  if (margen >= 100) margen = 99; // evita división por cero o negativa
-  const tc = parseFloat(document.getElementById('tipoCambio').value) || 0;
-
-  const costoBodegaUsd = producto.precioUsd * (1 + factorImport / 100);
-  const costoBodegaClp = costoBodegaUsd * tc;
-  const neto = Math.round(costoBodegaClp / (1 - margen / 100));
-  const iva = Math.round(neto * 0.19);
-  const total = neto + iva;
-  return { neto, iva, total };
+  return { neto: producto.neto, iva: producto.iva, total: producto.total };
 }
 
 function renderCatalogo(){
@@ -234,7 +209,6 @@ function renderCatalogo(){
             <div class="filaPrecio"><span>Valor Neto</span><b>$${precios.neto.toLocaleString('es-CL')}</b></div>
             <div class="filaPrecio sec"><span>IVA (19%)</span><span>$${precios.iva.toLocaleString('es-CL')}</span></div>
             <div class="filaPrecio total"><span>Total</span><b>$${precios.total.toLocaleString('es-CL')}</b></div>
-            <span class="usd">Costo distribuidor: US$${p.precioUsd.toFixed(2)}</span>
           </div>
           <div class="agregarRow">
             <input type="number" min="1" value="1" class="cantInput" data-sku="${escapeHtml(p.sku)}">
@@ -248,9 +222,6 @@ function renderCatalogo(){
 }
 
 document.getElementById('buscador').addEventListener('input', renderCatalogo);
-document.getElementById('margen').addEventListener('input', renderCatalogo);
-document.getElementById('factorImportacion').addEventListener('input', renderCatalogo);
-document.getElementById('tipoCambio').addEventListener('input', renderCatalogo);
 
 // ---------- carrito ----------
 function agregarAlCarrito(sku){
