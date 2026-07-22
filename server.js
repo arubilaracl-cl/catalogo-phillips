@@ -107,6 +107,17 @@ const TRADUCCION_SKU = {
   'SLEEVE-XGRD-S-BOX': 'Manga quirúrgica de goma XGUARD, Talla S — Caja (3 pares)'
 };
 
+const TRADUCCION_ETIQUETA_OPCION = {
+  'Matching Thyroid Shield': 'Protector tiroideo a juego',
+  'Personalized Logo': 'Logo personalizado',
+  'Embroidery': 'Bordado',
+  'Tether': 'Correa/cordón'
+};
+
+function traducirEtiquetaOpcion(etiqueta){
+  return TRADUCCION_ETIQUETA_OPCION[etiqueta] || etiqueta;
+}
+
 function traducir(sku, seccion, descripcionOriginal){
   return {
     descripcion: TRADUCCION_SKU[sku] || descripcionOriginal,
@@ -144,6 +155,14 @@ function parsearPestaña(filas, nombrePestaña){
   const colDist2026 = header.findIndex(c => /distributor/i.test(c || '') && /2026/.test(c || ''));
   const colDist2025 = header.findIndex(c => /distributor/i.test(c || '') && /2025/.test(c || ''));
   const colDesc = idx(/^description/i);
+  const colMaterial = idx(/core material/i);
+  const colTela = idx(/^fabric/i);
+  // cualquier columna cuyo encabezado empiece con "Add " es una personalización
+  // opcional (logo, bordado, correa, etc.) — se captura de forma genérica para
+  // que funcione igual en cualquier categoría futura sin tener que tocar el código
+  const colsOpciones = header
+    .map((c, idx2) => ({ idx: idx2, etiqueta: (c || '').replace(/^Add\s+/i, '').replace(/\s*\+\$[\d.]+\s*/g, '').replace(/:\s*$/, '').trim() }))
+    .filter(c => /^Add\s/i.test(header[c.idx] || ''));
 
   const items = [];
   let seccionActual = nombrePestaña;
@@ -168,11 +187,18 @@ function parsearPestaña(filas, nombrePestaña){
 
     const t = traducir(sku, seccionActual, desc);
 
+    const opciones = colsOpciones
+      .map(c => ({ etiqueta: traducirEtiquetaOpcion(c.etiqueta), valor: (fila[c.idx] || '').trim() }))
+      .filter(o => o.valor && !/^n\/?a$/i.test(o.valor));
+
     items.push({
       seccion: t.seccion,
       sku,
       modelo: colModelo >= 0 ? (fila[colModelo] || '').trim() : '',
       descripcion: t.descripcion,
+      material: colMaterial >= 0 ? (fila[colMaterial] || '').trim() : '',
+      tela: colTela >= 0 ? (fila[colTela] || '').trim() : '',
+      opciones,
       precioUsd
     });
   }
@@ -259,6 +285,9 @@ app.get('/api/productos', async (req, res) => {
         sku: p.sku,
         modelo: p.modelo,
         descripcion: p.descripcion,
+        material: p.material,
+        tela: p.tela,
+        opciones: p.opciones,
         neto: precios.neto,
         iva: precios.iva,
         total: precios.total
@@ -288,7 +317,7 @@ app.post('/api/productos/refrescar', async (req, res) => {
     const tc = await cargarTipoCambio();
     const productosConPrecio = datos.map(p => {
       const precios = calcularPrecio(p.precioUsd, tc.valor);
-      return { seccion: p.seccion, sku: p.sku, modelo: p.modelo, descripcion: p.descripcion, neto: precios.neto, iva: precios.iva, total: precios.total };
+      return { seccion: p.seccion, sku: p.sku, modelo: p.modelo, descripcion: p.descripcion, material: p.material, tela: p.tela, opciones: p.opciones, neto: precios.neto, iva: precios.iva, total: precios.total };
     });
     res.json({ productos: productosConPrecio, avisos, refrescado: true });
   }catch(e){
