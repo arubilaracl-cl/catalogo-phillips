@@ -33,6 +33,10 @@
   .prodCard .sku{ font-family:var(--mono); font-size:11px; color:var(--ink-soft); }
   .prodCard .nombre{ font-size:13.5px; font-weight:600; margin:4px 0 6px; line-height:1.3; }
   .prodCard .desc{ font-size:11.5px; color:var(--ink-soft); line-height:1.5; flex:1; margin-bottom:8px; }
+  .prodCard .etiquetas{ display:flex; gap:5px; flex-wrap:wrap; margin:4px 0 6px; }
+  .prodCard .etiqueta{ background:#EEF2F3; color:var(--ink-soft); font-size:10px; padding:2px 7px; border-radius:10px; }
+  .prodCard .opciones{ font-size:10.5px; color:var(--ink-soft); background:#F7F9FA; border-radius:6px; padding:6px 8px; margin-bottom:8px; line-height:1.5; }
+  .prodCard .nota-personalizacion{ font-size:10px; color:#9AA7AD; font-style:italic; margin-top:6px; }
   .prodCard .precio{ font-size:17px; font-weight:800; color:var(--green); margin-bottom:8px; }
   .prodCard .precio .usd{ font-size:10.5px; color:var(--ink-soft); font-weight:400; display:block; margin-top:4px; }
   .prodCard .filaPrecio{ display:flex; justify-content:space-between; align-items:baseline; font-size:12.5px; font-weight:400; color:var(--ink-soft); }
@@ -84,7 +88,11 @@
 <main>
   <div class="aviso" id="avisoFase1">
     <b>Esto es un piloto de validación (Fase 1) — ahora corriendo con backend propio</b>
-    El servidor (desplegado en Render) lee en vivo la pestaña "Radiation - Apparel" de tu planilla de Phillips. Aún no incluye fotos de producto (pendiente de autorización de Phillips), ni las demás ~50 categorías, ni el envío automático por Twilio — el botón de "Confirmar pedido" arma el resumen y abre tu correo con todo prellenado para que lo revises antes de escalarlo.
+    El servidor (desplegado en Render) lee en vivo la pestaña "Radiation - Apparel" de tu planilla de Phillips. Aún no incluye fotos de producto (pendiente de autorización de Phillips), ni las demás ~50 categorías, ni el envío automático por Twilio — el botón de "Enviar solicitud de cotización" arma el resumen y abre tu correo con todo prellenado para que lo revises antes de escalarlo.
+  </div>
+  <div class="aviso" id="avisoVolatilidad">
+    <b>Los precios en pesos chilenos son referenciales</b>
+    Se calculan con el tipo de cambio del día y pueden variar levemente entre una visita y otra según el movimiento del dólar. El valor final queda sujeto a confirmación al momento de emitir la cotización formal.
   </div>
   <div id="avisos"></div>
 
@@ -123,7 +131,7 @@
     </div>
 
     <div class="accionesCarrito">
-      <button onclick="confirmarPedido()">Confirmar pedido</button>
+      <button onclick="confirmarPedido()">Enviar solicitud de cotización</button>
       <button class="secondary" onclick="cerrarCarrito()">Seguir viendo catálogo</button>
     </div>
   </div>
@@ -200,11 +208,20 @@ function renderCatalogo(){
     html += `<div class="seccionTitulo">${escapeHtml(seccion)}</div><div class="grid">`;
     porSeccion[seccion].forEach(p => {
       const precios = precioClpDe(p);
+      const etiquetas = [p.material, p.tela].filter(Boolean);
+      const etiquetasHtml = etiquetas.length
+        ? `<div class="etiquetas">${etiquetas.map(e => `<span class="etiqueta">${escapeHtml(e)}</span>`).join('')}</div>`
+        : '';
+      const opcionesHtml = (p.opciones && p.opciones.length)
+        ? `<div class="opciones"><b>Personalización disponible:</b> ${p.opciones.map(o => `${escapeHtml(o.etiqueta)}: ${escapeHtml(o.valor)}`).join(' · ')}</div>`
+        : '';
       html += `
         <div class="prodCard">
           <div class="sku">${escapeHtml(p.sku)}</div>
           <div class="nombre">${escapeHtml(p.modelo || p.sku)}</div>
+          ${etiquetasHtml}
           <div class="desc">${escapeHtml(p.descripcion)}</div>
+          ${opcionesHtml}
           <div class="precio">
             <div class="filaPrecio"><span>Valor Neto</span><b>$${precios.neto.toLocaleString('es-CL')}</b></div>
             <div class="filaPrecio sec"><span>IVA (19%)</span><span>$${precios.iva.toLocaleString('es-CL')}</span></div>
@@ -214,6 +231,7 @@ function renderCatalogo(){
             <input type="number" min="1" value="1" class="cantInput" data-sku="${escapeHtml(p.sku)}">
             <button onclick="agregarAlCarrito('${escapeHtml(p.sku).replace(/'/g, "\\'")}')">Agregar</button>
           </div>
+          <div class="nota-personalizacion">Si necesitas otra combinación de material, tela o color, indícalo en los comentarios al enviar tu solicitud.</div>
         </div>`;
     });
     html += `</div>`;
