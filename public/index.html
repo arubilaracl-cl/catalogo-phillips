@@ -120,10 +120,6 @@
       <label>Buscar producto</label>
       <input type="text" id="buscador" placeholder="Nombre, SKU o descripción…">
     </div>
-    <div class="campo">
-      <label>&nbsp;</label>
-      <button id="btnRefrescar" style="padding:7px 12px; border-radius:6px; border:1px solid var(--navy); background:#fff; color:var(--navy); cursor:pointer; font-size:12.5px;">↻ Refrescar precios</button>
-    </div>
   </div>
 
   <div id="navCategorias" class="navCategorias"></div>
@@ -384,22 +380,18 @@ function confirmarPedido(){
 }
 
 // ---------- init ----------
-document.getElementById('btnRefrescar').addEventListener('click', async () => {
-  const btn = document.getElementById('btnRefrescar');
-  const original = btn.textContent;
-  btn.textContent = 'Actualizando…';
-  btn.disabled = true;
-  try{
-    const res = await fetch('/api/productos/refrescar', { method: 'POST' });
-    const data = await res.json();
-    productos = data.productos || [];
-    renderCatalogo();
-    btn.textContent = '✓ Actualizado';
-  }catch(e){
-    btn.textContent = 'Error al actualizar';
+// Refresco automático de precios/tipo de cambio cada 24 horas (sin botón manual).
+// Usa /api/productos normal (no /refrescar) — el servidor igual mantiene su propia
+// caché de 15 minutos, así que esto simplemente vuelve a pedir los datos ya frescos.
+const VEINTICUATRO_HORAS_MS = 24 * 60 * 60 * 1000;
+setInterval(async () => {
+  try {
+    await cargarTipoCambio();
+    await cargarCatalogo();
+  } catch (e) {
+    console.error('Error en refresco automático:', e);
   }
-  setTimeout(() => { btn.textContent = original; btn.disabled = false; }, 1800);
-});
+}, VEINTICUATRO_HORAS_MS);
 
 // ---------- navegación por categorías ----------
 function irASeccion(id){

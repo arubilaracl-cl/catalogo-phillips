@@ -54,7 +54,12 @@ const TRADUCCION_SECCION = {
   'Radiation - Signs': 'Señalética de radiación',
   'Radiation - Nuclear Medicine': 'Medicina nuclear',
   'Radiation - Lead Blockers': 'Bloqueadores de plomo',
-  'Radiation - Lead Markers': 'Marcadores radiográficos'
+  'Radiation - Lead Markers': 'Marcadores radiográficos',
+  // sub-divisiones dentro de la pestaña "Radiation Glasses"
+  'PHILLIPS SAFETY LEAD GLASSES': 'Lentes plomados Phillips Safety',
+  'PHILLIPS SAFETY FACE SHIELDS': 'Protectores faciales de plomo',
+  'PHILLIPS SAFETY RADIATION/LASER COMBINATION GLASSES': 'Lentes combinados radiación/láser',
+  'NIKE LEAD GLASSES': 'Lentes plomados Nike'
 };
 
 const TRADUCCION_SKU = {
@@ -132,6 +137,50 @@ const TRADUCCION_ETIQUETA_OPCION = {
   'Tether': 'Correa/cordón'
 };
 
+// Tipos de marco de la pestaña "Radiation Glasses" (columna "Type:")
+const TRADUCCION_TIPO = {
+  'ECONOMY': 'Económico',
+  'FITOVER': 'Fitover (sobrepuesto)',
+  'GOGGLES': 'Antiparras',
+  'PLASTIC': 'Plástico',
+  'WRAP AROUND SPORT': 'Deportivo envolvente',
+  'WRAP AROUND': 'Envolvente',
+  'METAL': 'Metálico'
+};
+
+function traducirTipo(tipo){
+  return TRADUCCION_TIPO[(tipo || '').toUpperCase().trim()] || tipo;
+}
+
+// Traducción "best effort" de las descripciones de Radiation Glasses: estas
+// siguen frases bastante repetidas ("Phillips Safety X Style in COLOR color
+// with no prescription", "Nike X frame in COLOR color, size N, with..."), así
+// que se traducen por reemplazo de frases en vez de traducir cada una a mano
+// (son ~100 productos). Los nombres propios (modelo, color) quedan igual.
+function traducirDescripcionLentes(desc){
+  if (!desc) return desc;
+  let d = desc;
+  const reemplazos = [
+    [/\bwith no prescription\b/gi, 'sin graduación'],
+    [/\bwith Single Vision lens\b/gi, 'con lente monofocal'],
+    [/\bwith Progressive Bifocal lens\b/gi, 'con lente progresivo/bifocal'],
+    [/\+\s*Anti-Reflective Coating\b/gi, '+ recubrimiento antirreflejo'],
+    [/\+\s*Fog-Free Coating\b/gi, '+ recubrimiento antiempañante'],
+    [/\bEconomy Frame Style\b/gi, 'marco económico'],
+    [/\bFitover Glasses\b/gi, 'lentes fitover (sobrepuestos)'],
+    [/\bGoggle Style\b/gi, 'tipo antiparras'],
+    [/\bPlastic Frame\b/gi, 'marco plástico'],
+    [/\bWrap Around Sport Style\b/gi, 'estilo deportivo envolvente'],
+    [/\bWrap Around Style\b/gi, 'estilo envolvente'],
+    [/\bMetal frames\b/gi, 'marco metálico'],
+    [/\bframe in\b/gi, 'marco en'],
+    [/\bin (\w[\w/]*) color\b/gi, 'color $1'],
+    [/,\s*size\s+(\d+),\s*/gi, ', talla $1, '],
+  ];
+  reemplazos.forEach(([regex, reemplazo]) => { d = d.replace(regex, reemplazo); });
+  return d;
+}
+
 // ---------- fotos de producto (Fase 1: tomadas del sitio público de Phillips,
 // según autorización de Phillips) ----------
 // Nota: la planilla no trae fotos, así que estas se mapearon a mano por SKU
@@ -185,7 +234,12 @@ const FOTO_SKU = {
   'RA-RH-ELF50': 'https://phillips-safety.com/wp-content/uploads/2024/06/RA-RH-LL25-model_front_cut.jpg',
   'QS-RH-ELF50-NYBK': 'https://phillips-safety.com/wp-content/uploads/2024/07/Radiation-Hats-Blue-Angle-Front.jpg',
   'QS-RPC-LL50-NYBL': 'https://phillips-safety.com/wp-content/uploads/2024/07/QS-RPC-LL50-NYBL.jpg',
-  'AT-CAP-05': 'https://phillips-safety.com/wp-content/uploads/2023/12/Disposable_Hat_Side.jpg'
+  'AT-CAP-05': 'https://phillips-safety.com/wp-content/uploads/2023/12/Disposable_Hat_Side.jpg',
+
+  // Lentes plomados (Fitover) — el resto de modelos de lentes aún no tiene
+  // foto mapeada (quedan pendientes para una próxima pasada)
+  'RG-33-BK-50SS': 'https://phillips-safety.com/wp-content/uploads/2023/01/RG-33-BK07-scaled.jpg',
+  'RG-33-T-50SS': 'https://phillips-safety.com/wp-content/uploads/2023/01/RG-33-T07-scaled.jpg'
 };
 
 function fotoDe(sku){
@@ -198,7 +252,7 @@ function traducirEtiquetaOpcion(etiqueta){
 
 function traducir(sku, seccion, descripcionOriginal){
   return {
-    descripcion: TRADUCCION_SKU[sku] || descripcionOriginal,
+    descripcion: TRADUCCION_SKU[sku] || traducirDescripcionLentes(descripcionOriginal),
     seccion: TRADUCCION_SECCION[seccion] || seccion
   };
 }
@@ -230,6 +284,7 @@ function parsearPestaña(filas, nombrePestaña){
 
   const colModelo = idx(/^model/i);
   const colSku = idx(/sku/i);
+  const colTipo = idx(/^type:?$/i);
   const colDist2026 = header.findIndex(c => /distributor/i.test(c || '') && /2026/.test(c || ''));
   const colDist2025 = header.findIndex(c => /distributor/i.test(c || '') && /2025/.test(c || ''));
   const colDesc0 = idx(/^description/i);
@@ -245,6 +300,7 @@ function parsearPestaña(filas, nombrePestaña){
 
   const items = [];
   let seccionActual = nombrePestaña;
+  let tipoActual = '';
 
   for (let i = idxHeader + 1; i < filas.length; i++){
     const fila = filas[i];
@@ -252,12 +308,25 @@ function parsearPestaña(filas, nombrePestaña){
 
     const sku = colSku >= 0 ? (fila[colSku] || '').trim() : '';
     const desc = colDesc >= 0 ? (fila[colDesc] || '').trim() : '';
+    const tieneAlgunPrecio = (colDist2026 >= 0 && fila[colDist2026]) || (colDist2025 >= 0 && fila[colDist2025]);
 
-    if (!sku && desc && !(colDist2026 >= 0 && fila[colDist2026]) && !(colDist2025 >= 0 && fila[colDist2025])){
-      seccionActual = desc;
-      continue;
+    if (!sku && !tieneAlgunPrecio){
+      // fila-divisor de sección: puede traer el texto en la columna "Description"
+      // (caso Apparel) o solo en la primera celda no vacía de la fila (caso
+      // Radiation Glasses, que no tiene columna Description propiamente tal)
+      const primerCelda = (fila.find(c => c && c.trim()) || '').trim();
+      const textoDivisor = desc || primerCelda;
+      if (textoDivisor){
+        seccionActual = textoDivisor;
+        tipoActual = ''; // nueva sección mayor -> reinicia el sub-tipo
+        continue;
+      }
     }
     if (!sku) continue;
+
+    if (colTipo >= 0 && (fila[colTipo] || '').trim()){
+      tipoActual = (fila[colTipo] || '').trim();
+    }
 
     const precio2026 = colDist2026 >= 0 ? limpiaPrecio(fila[colDist2026]) : null;
     const precio2025 = colDist2025 >= 0 ? limpiaPrecio(fila[colDist2025]) : null;
@@ -265,6 +334,9 @@ function parsearPestaña(filas, nombrePestaña){
     if (precioUsd == null) continue;
 
     const t = traducir(sku, seccionActual, desc);
+    const materialFinal = colMaterial >= 0
+      ? (fila[colMaterial] || '').trim()
+      : (tipoActual ? traducirTipo(tipoActual) : '');
 
     const opciones = colsOpciones
       .map(c => ({ etiqueta: traducirEtiquetaOpcion(c.etiqueta), valor: (fila[c.idx] || '').trim() }))
@@ -275,7 +347,7 @@ function parsearPestaña(filas, nombrePestaña){
       sku,
       modelo: colModelo >= 0 ? (fila[colModelo] || '').trim() : '',
       descripcion: t.descripcion,
-      material: colMaterial >= 0 ? (fila[colMaterial] || '').trim() : '',
+      material: materialFinal,
       tela: colTela >= 0 ? (fila[colTela] || '').trim() : '',
       opciones,
       foto: fotoDe(sku),
