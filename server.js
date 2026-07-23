@@ -22,7 +22,14 @@ const PORT = process.env.PORT || 3000;
 // entradas aquí con su nombre y su gid (se ve en la URL de cada pestaña)
 const SHEET_ID = process.env.SHEET_ID || '1ItxD9POkojzWNQU1ULsji93V3dQ6n2FZHlmFWzeOwH4';
 const PESTAÑAS = [
-  { nombre: 'Radiation - Apparel', gid: '733320967' }
+  { nombre: 'Radiation - Apparel', gid: '733320967' },
+  { nombre: 'Radiation Glasses', gid: '2053326769' },
+  { nombre: 'Radiation - Barriers', gid: '1765599488' },
+  { nombre: 'Radiation - Apron Racks', gid: '1425193102' },
+  { nombre: 'Radiation - Signs', gid: '173982867' },
+  { nombre: 'Radiation - Nuclear Medicine', gid: '1754405718' },
+  { nombre: 'Radiation - Lead Blockers', gid: '906081613' },
+  { nombre: 'Radiation - Lead Markers', gid: '2000643853' }
 ];
 
 // ---------- traducciones al español ----------
@@ -36,7 +43,18 @@ const TRADUCCION_SECCION = {
   'THYROID SHIELDS': 'Protectores tiroideos',
   'RADIATION HATS': 'Gorros de radioprotección',
   'LEAD BLANKETS': 'Mantas plomadas',
-  'DISPOSABLE RADIATION APPAREL': 'Vestimenta de radioprotección desechable'
+  'DISPOSABLE RADIATION APPAREL': 'Vestimenta de radioprotección desechable',
+  // categorías principales (nombre de pestaña) para las divisiones nuevas —
+  // estas no llevan traducción SKU por SKU todavía (son ~285 productos),
+  // así que la descripción de cada ítem queda en inglés tal como viene
+  // de la planilla de Phillips.
+  'Radiation Glasses': 'Lentes plomados',
+  'Radiation - Barriers': 'Barreras de plomo',
+  'Radiation - Apron Racks': 'Repisas para delantales plomados',
+  'Radiation - Signs': 'Señalética de radiación',
+  'Radiation - Nuclear Medicine': 'Medicina nuclear',
+  'Radiation - Lead Blockers': 'Bloqueadores de plomo',
+  'Radiation - Lead Markers': 'Marcadores radiográficos'
 };
 
 const TRADUCCION_SKU = {
@@ -214,7 +232,8 @@ function parsearPestaña(filas, nombrePestaña){
   const colSku = idx(/sku/i);
   const colDist2026 = header.findIndex(c => /distributor/i.test(c || '') && /2026/.test(c || ''));
   const colDist2025 = header.findIndex(c => /distributor/i.test(c || '') && /2025/.test(c || ''));
-  const colDesc = idx(/^description/i);
+  const colDesc0 = idx(/^description/i);
+  const colDesc = colDesc0 >= 0 ? colDesc0 : idx(/summary/i);
   const colMaterial = idx(/core material/i);
   const colTela = idx(/^fabric/i);
   // cualquier columna cuyo encabezado empiece con "Add " es una personalización
