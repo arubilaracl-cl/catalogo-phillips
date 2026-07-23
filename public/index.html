@@ -26,7 +26,23 @@
   .buscador{flex:1; min-width:180px;}
   .buscador input{ width:100%; }
 
-  .seccionTitulo{ font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--green); margin:26px 0 10px; padding-bottom:6px; border-bottom:2px solid var(--line); }
+  .seccionTitulo{ font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--green); margin:26px 0 10px; padding-bottom:6px; border-bottom:2px solid var(--line); scroll-margin-top:16px; }
+
+  .navCategorias{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px; }
+  .navCategorias .chip{
+    background:#fff; border:1px solid var(--navy); color:var(--navy); border-radius:20px;
+    padding:8px 14px; font-size:12.5px; font-weight:600; cursor:pointer; white-space:nowrap;
+  }
+  .navCategorias .chip:hover{ background:var(--navy); color:#fff; }
+  .navCategorias .chip .cant{ color:var(--ink-soft); font-weight:400; margin-left:4px; }
+  .navCategorias .chip:hover .cant{ color:#cfe0d8; }
+
+  #btnVolver{
+    display:none; position:fixed; bottom:20px; left:20px; background:#fff; color:var(--navy);
+    border:1px solid var(--navy); padding:10px 16px; border-radius:30px; box-shadow:0 4px 14px rgba(0,0,0,.15);
+    cursor:pointer; font-size:13px; font-weight:600; z-index:49;
+  }
+  #btnVolver.visible{ display:block; }
 
   .grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:14px; }
   .prodCard{ background:#fff; border:1px solid var(--line); border-radius:10px; padding:14px; display:flex; flex-direction:column; }
@@ -110,8 +126,12 @@
     </div>
   </div>
 
+  <div id="navCategorias" class="navCategorias"></div>
+
   <div id="catalogo">Cargando catálogo…</div>
 </main>
+
+<button id="btnVolver" onclick="volverArriba()" title="Volver al selector de categorías">↑ Categorías</button>
 
 <div id="carritoFlotante" onclick="abrirCarrito()">🛒 Cotización <span class="cant" id="cantCarrito">0</span></div>
 
@@ -186,8 +206,17 @@ function precioClpDe(producto){
   return { neto: producto.neto, iva: producto.iva, total: producto.total };
 }
 
+function slugSeccion(s){
+  return 'sec-' + String(s)
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // quita tildes
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 function renderCatalogo(){
   const cont = document.getElementById('catalogo');
+  const nav = document.getElementById('navCategorias');
   const filtro = (document.getElementById('buscador').value || '').toLowerCase().trim();
 
   const filtrados = productos.filter(p => {
@@ -197,6 +226,7 @@ function renderCatalogo(){
 
   if (!filtrados.length){
     cont.innerHTML = '<p style="color:var(--ink-soft);">No se encontraron productos.</p>';
+    nav.innerHTML = '';
     return;
   }
 
@@ -206,9 +236,15 @@ function renderCatalogo(){
     porSeccion[p.seccion].push(p);
   });
 
+  // ---------- selector de categorías (arriba) ----------
+  nav.innerHTML = Object.keys(porSeccion).map(seccion => {
+    const id = slugSeccion(seccion);
+    return `<button class="chip" onclick="irASeccion('${id}')">${escapeHtml(seccion)} <span class="cant">(${porSeccion[seccion].length})</span></button>`;
+  }).join('');
+
   let html = '';
   Object.keys(porSeccion).forEach(seccion => {
-    html += `<div class="seccionTitulo">${escapeHtml(seccion)}</div><div class="grid">`;
+    html += `<div class="seccionTitulo" id="${slugSeccion(seccion)}">${escapeHtml(seccion)}</div><div class="grid">`;
     porSeccion[seccion].forEach(p => {
       const precios = precioClpDe(p);
       const etiquetas = [p.material, p.tela].filter(Boolean);
@@ -363,6 +399,25 @@ document.getElementById('btnRefrescar').addEventListener('click', async () => {
     btn.textContent = 'Error al actualizar';
   }
   setTimeout(() => { btn.textContent = original; btn.disabled = false; }, 1800);
+});
+
+// ---------- navegación por categorías ----------
+function irASeccion(id){
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function volverArriba(){
+  document.getElementById('navCategorias').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('navCategorias');
+  const btn = document.getElementById('btnVolver');
+  if (!nav || !btn) return;
+  const navBottom = nav.getBoundingClientRect().bottom;
+  if (navBottom < 0) btn.classList.add('visible');
+  else btn.classList.remove('visible');
 });
 
 cargarTipoCambio();
