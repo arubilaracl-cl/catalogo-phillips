@@ -215,9 +215,6 @@ function renderCatalogo(){
       const etiquetasHtml = etiquetas.length
         ? `<div class="etiquetas">${etiquetas.map(e => `<span class="etiqueta">${escapeHtml(e)}</span>`).join('')}</div>`
         : '';
-      const opcionesHtml = (p.opciones && p.opciones.length)
-        ? `<div class="opciones"><b>Personalización disponible:</b> ${p.opciones.map(o => `${escapeHtml(o.etiqueta)}: ${escapeHtml(o.valor)}`).join(' · ')}</div>`
-        : '';
       const fotoHtml = p.foto
         ? `<div class="fotoWrap"><img src="${escapeHtml(p.foto)}" alt="${escapeHtml(p.modelo || p.sku)}" loading="lazy" onerror="this.parentElement.innerHTML='<span class=&quot;sinFoto&quot;>Foto no disponible</span>'"></div>`
         : `<div class="fotoWrap"><span class="sinFoto">Foto de referencia<br>próximamente</span></div>`;
@@ -228,7 +225,6 @@ function renderCatalogo(){
           <div class="nombre">${escapeHtml(p.modelo || p.sku)}</div>
           ${etiquetasHtml}
           <div class="desc">${escapeHtml(p.descripcion)}</div>
-          ${opcionesHtml}
           <div class="precio">
             <div class="filaPrecio"><span>Valor Neto</span><b>$${precios.neto.toLocaleString('es-CL')}</b></div>
             <div class="filaPrecio sec"><span>IVA (19%)</span><span>$${precios.iva.toLocaleString('es-CL')}</span></div>
@@ -238,7 +234,7 @@ function renderCatalogo(){
             <input type="number" min="1" value="1" class="cantInput" data-sku="${escapeHtml(p.sku)}">
             <button onclick="agregarAlCarrito('${escapeHtml(p.sku).replace(/'/g, "\\'")}')">Agregar</button>
           </div>
-          <div class="nota-personalizacion">Si necesitas otra combinación de material, tela o color, indícalo en los comentarios al enviar tu solicitud.</div>
+          <div class="nota-personalizacion">Con tu solicitud de cotización te enviaremos las distintas posibilidades de personalización disponibles (material, tela, color, logo, bordado, etc.).</div>
         </div>`;
     });
     html += `</div>`;
