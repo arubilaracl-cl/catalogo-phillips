@@ -236,11 +236,27 @@ const FOTO_SKU = {
   'QS-RPC-LL50-NYBL': 'https://phillips-safety.com/wp-content/uploads/2024/07/QS-RPC-LL50-NYBL.jpg',
   'AT-CAP-05': 'https://phillips-safety.com/wp-content/uploads/2023/12/Disposable_Hat_Side.jpg',
 
-  // Lentes plomados (Fitover) — el resto de modelos de lentes aún no tiene
-  // foto mapeada (quedan pendientes para una próxima pasada)
+  // Lentes plomados (Fitover, Económico, Metálico) — el resto de tipos
+  // (Antiparras, Plástico, Envolvente, Deportivo envolvente, Nike, protectores
+  // faciales, combinados) aún no tiene foto mapeada, quedan pendientes.
   'RG-33-BK-50SS': 'https://phillips-safety.com/wp-content/uploads/2023/01/RG-33-BK07-scaled.jpg',
-  'RG-33-T-50SS': 'https://phillips-safety.com/wp-content/uploads/2023/01/RG-33-T07-scaled.jpg'
+  'RG-33-T-50SS': 'https://phillips-safety.com/wp-content/uploads/2023/01/RG-33-T07-scaled.jpg',
+  'RG-206-OB-50SS': 'https://phillips-safety.com/wp-content/uploads/2023/01/RG-206-OB-BULK-6-scaled.jpg',
+  'RG-500-49GM-50SS': 'https://phillips-safety.com/wp-content/uploads/2023/01/RG-500-49GM-50SS-scaled.jpg'
 };
+
+// Respaldo por TIPO de marco (columna "Type:" de la pestaña Radiation Glasses):
+// si el SKU exacto de un lente no está en FOTO_SKU pero conocemos su tipo,
+// usamos la foto representativa de ese tipo en vez de dejarlo sin imagen.
+const FOTO_TIPO = {
+  'ECONOMY': 'https://phillips-safety.com/wp-content/uploads/2023/01/RG-206-OB-BULK-6-scaled.jpg',
+  'FITOVER': 'https://phillips-safety.com/wp-content/uploads/2023/01/RG-33-BK07-scaled.jpg',
+  'METAL': 'https://phillips-safety.com/wp-content/uploads/2023/01/RG-500-49GM-50SS-scaled.jpg'
+};
+
+function fotoTipoDe(tipo){
+  return FOTO_TIPO[(tipo || '').toUpperCase().trim()] || null;
+}
 
 function fotoDe(sku){
   return FOTO_SKU[sku] || null;
@@ -350,7 +366,7 @@ function parsearPestaña(filas, nombrePestaña){
       material: materialFinal,
       tela: colTela >= 0 ? (fila[colTela] || '').trim() : '',
       opciones,
-      foto: fotoDe(sku),
+      foto: fotoDe(sku) || fotoTipoDe(tipoActual),
       precioUsd
     });
   }
