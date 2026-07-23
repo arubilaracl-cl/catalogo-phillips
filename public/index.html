@@ -30,6 +30,9 @@
 
   .grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:14px; }
   .prodCard{ background:#fff; border:1px solid var(--line); border-radius:10px; padding:14px; display:flex; flex-direction:column; }
+  .prodCard .fotoWrap{ width:100%; aspect-ratio:1/1; background:#F7F9FA; border-radius:8px; margin-bottom:10px; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+  .prodCard .fotoWrap img{ width:100%; height:100%; object-fit:contain; }
+  .prodCard .fotoWrap .sinFoto{ color:#C3CDD1; font-size:11px; text-align:center; padding:10px; }
   .prodCard .sku{ font-family:var(--mono); font-size:11px; color:var(--ink-soft); }
   .prodCard .nombre{ font-size:13.5px; font-weight:600; margin:4px 0 6px; line-height:1.3; }
   .prodCard .desc{ font-size:11.5px; color:var(--ink-soft); line-height:1.5; flex:1; margin-bottom:8px; }
@@ -87,8 +90,8 @@
 
 <main>
   <div class="aviso" id="avisoFase1">
-    <b>Esto es un piloto de validación (Fase 1) — ahora corriendo con backend propio</b>
-    El servidor (desplegado en Render) lee en vivo la pestaña "Radiation - Apparel" de tu planilla de Phillips. Aún no incluye fotos de producto (pendiente de autorización de Phillips), ni las demás ~50 categorías, ni el envío automático por Twilio — el botón de "Enviar solicitud de cotización" arma el resumen y abre tu correo con todo prellenado para que lo revises antes de escalarlo.
+    <b>Esto es un piloto de validación (Fase 1) — ahora con fotos de referencia</b>
+    El servidor (desplegado en Render) lee en vivo la pestaña "Radiation - Apparel" de tu planilla de Phillips. Las fotos se tomaron del sitio público de Phillips (autorizado por Phillips) — algunos productos ya tienen foto exacta del modelo, otros muestran la foto más parecida disponible mientras se completa el mapeo. Aún faltan las demás ~50 categorías y el envío automático por Twilio — el botón de "Enviar solicitud de cotización" arma el resumen y abre tu correo con todo prellenado para que lo revises antes de escalarlo.
   </div>
   <div class="aviso" id="avisoVolatilidad">
     <b>Los precios en pesos chilenos son referenciales</b>
@@ -215,8 +218,12 @@ function renderCatalogo(){
       const opcionesHtml = (p.opciones && p.opciones.length)
         ? `<div class="opciones"><b>Personalización disponible:</b> ${p.opciones.map(o => `${escapeHtml(o.etiqueta)}: ${escapeHtml(o.valor)}`).join(' · ')}</div>`
         : '';
+      const fotoHtml = p.foto
+        ? `<div class="fotoWrap"><img src="${escapeHtml(p.foto)}" alt="${escapeHtml(p.modelo || p.sku)}" loading="lazy" onerror="this.parentElement.innerHTML='<span class=&quot;sinFoto&quot;>Foto no disponible</span>'"></div>`
+        : `<div class="fotoWrap"><span class="sinFoto">Foto de referencia<br>próximamente</span></div>`;
       html += `
         <div class="prodCard">
+          ${fotoHtml}
           <div class="sku">${escapeHtml(p.sku)}</div>
           <div class="nombre">${escapeHtml(p.modelo || p.sku)}</div>
           ${etiquetasHtml}

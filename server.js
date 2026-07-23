@@ -114,6 +114,66 @@ const TRADUCCION_ETIQUETA_OPCION = {
   'Tether': 'Correa/cordón'
 };
 
+// ---------- fotos de producto (Fase 1: tomadas del sitio público de Phillips,
+// según autorización de Phillips) ----------
+// Nota: la planilla no trae fotos, así que estas se mapearon a mano por SKU
+// revisando phillips-safety.com. Para SKUs no listados aquí (variantes de
+// medida, color u opciones que no tienen página propia), se usa la foto de
+// su categoría como referencia visual — no es necesariamente el mismo color/
+// tela exacto del SKU pedido, pero sí el mismo tipo de producto.
+const FOTO_SKU = {
+  // Delantales Quickship
+  'QS-RA-FFA-LF50-M-NYBK': 'https://phillips-safety.com/wp-content/uploads/2024/09/PS-Flexiback-Frontal-Apron-Blue-Angle-Front_model_whitebg1.jpg',
+  'QS-RA-FFA-LL50-M-RIPBL': 'https://phillips-safety.com/wp-content/uploads/2024/09/PS-Flexiback-Frontal-Apron-Blue-Angle-Front_model_whitebg1.jpg',
+  'QS-RA-VSA-LL50-XL-NYBL': 'https://phillips-safety.com/wp-content/uploads/2024/09/PS-Vest-Skirt-Apron-Ripstop-Blue-Angle-Front_model_whitebg.jpg',
+  'QS-RA-LGHA-LF50-M-NYBK': 'https://phillips-safety.com/wp-content/uploads/2024/09/lapguard_blue_whitebg.jpg',
+  'QS-RA-LGHA-LF50-L-RIPBL': 'https://phillips-safety.com/wp-content/uploads/2024/09/lapguard_blue_whitebg.jpg',
+  'QS-RA-TF-LL50-S-NYBL': 'https://phillips-safety.com/wp-content/uploads/2024/09/PS-Tie-Front-Apron-Blue-Angle-Front_model_whitebg.jpg',
+  'QS-RA-DENT-LL25-A-NYBL': 'https://phillips-safety.com/wp-content/uploads/2024/06/dental-lead-apron_QS-RA-DENT-LL25-A-NYBL.jpg',
+  'QS-RA-DENT-ELF25-A-RIPBL': 'https://phillips-safety.com/wp-content/uploads/2024/06/dental-lead-apron_QS-RA-DENT-LL25-A-NYBL.jpg',
+
+  // Delantales a medida
+  'RA-FFA-PLF50': 'https://phillips-safety.com/wp-content/uploads/2024/09/PS-Flexiback-Frontal-Apron-Blue-Angle-Front_model_whitebg1.jpg',
+  'RA-FFAB-PLF50': 'https://phillips-safety.com/wp-content/uploads/2025/09/ps_flexiback-buckle_model_whitebg.jpg',
+  'RA-FFAB-BACK-PLF50': 'https://phillips-safety.com/wp-content/uploads/2026/04/Flexiback-Frontal-Back-Support-Apron_Front.jpg',
+  'RA-TF-LF50': 'https://phillips-safety.com/wp-content/uploads/2024/09/PS-Tie-Front-Apron-Blue-Angle-Front_model_whitebg.jpg',
+  'RA-J1P-PLF50': 'https://phillips-safety.com/wp-content/uploads/2025/09/ps_jacket-one-piece_model_whitebg.jpg',
+  'RA-RJ1P-PLF50': 'https://phillips-safety.com/wp-content/uploads/2026/05/Reverse-Flex-Jacket-1Piece_RA-RJ1P_Front.jpg',
+  'RA-PRJ1P-LF50': 'https://phillips-safety.com/wp-content/uploads/2025/09/ps_jacket-one-piece_model_whitebg.jpg',
+  'RA-SDF-LL50': 'https://phillips-safety.com/wp-content/uploads/2025/09/ps_surgical-drop_model_whitebg.jpg',
+  'RA-VSA-PLF50': 'https://phillips-safety.com/wp-content/uploads/2024/09/PS-Vest-Skirt-Apron-Ripstop-Blue-Angle-Front_model_whitebg.jpg',
+  'RA-RVSA-PLF50': 'https://phillips-safety.com/wp-content/uploads/2025/09/ps_reverse-vest-skirt_model_whitebg.jpg',
+  'RA-LGHA-LF50': 'https://phillips-safety.com/wp-content/uploads/2024/09/lapguard_blue_whitebg.jpg',
+  'RA-MP-LF50': 'https://phillips-safety.com/wp-content/uploads/2024/09/lapguard_blue_whitebg.jpg',
+  'RA-DENT-LL25': 'https://phillips-safety.com/wp-content/uploads/2024/06/dental-lead-apron_QS-RA-DENT-LL25-A-NYBL.jpg',
+
+  // Protectores gonadales/ováricos
+  'RA-GOS-SET-LL50': 'https://phillips-safety.com/wp-content/uploads/2024/08/gonad-ovarian-shield-with-buckle-radiation-protection-set-of-3.jpg',
+  'RA-PGOS-LL25': 'https://phillips-safety.com/wp-content/uploads/2026/01/RA-GOS-LL25-small.jpg',
+  'GOS-DPR-LL50': 'https://phillips-safety.com/wp-content/uploads/2026/01/GOS-DPR_front-scaled.jpeg',
+  'QS-GOS-Blue-3pcs': 'https://phillips-safety.com/wp-content/uploads/2024/08/gonad-ovarian-shield-with-buckle-radiation-protection-set-of-3.jpg',
+  'GOS-LF25-NICU-PACK5': 'https://phillips-safety.com/wp-content/uploads/2024/05/NICU-Gonad-PO-2300154001-scaled.jpg',
+
+  // Protectores tiroideos
+  'RA-TS-ELF50': 'https://phillips-safety.com/wp-content/uploads/2024/06/RA-TS-LL35_model_cut.jpg',
+  'RA-TS-BIB-ELF50': 'https://phillips-safety.com/wp-content/uploads/2024/06/RA-TS-BIB-LL25-model_cut.jpg',
+  'RA-TS-U-LL50': 'https://phillips-safety.com/wp-content/uploads/2024/06/RA-TS-U-LL25-model_cut.jpg',
+  'RA-TS-VISOR-ELF25': 'https://phillips-safety.com/wp-content/uploads/2024/06/RA-TS-VISOR-LL25-model_cut.jpg',
+  'QS-TS-ELF50-NYBK': 'https://phillips-safety.com/wp-content/uploads/2024/06/PS-Thyroid-Shield-Nylon-Blue-Angle-Left_model_whitebg.jpg',
+  'QS-TS-ELF50-RIPBL': 'https://phillips-safety.com/wp-content/uploads/2024/06/PS-Thyroid-Shield-Nylon-Blue-Angle-Left_model_whitebg.jpg',
+  'TS-DS-LF50-M': 'https://phillips-safety.com/wp-content/uploads/2024/11/TS-DS-LF50-L_MAIN.jpg',
+
+  // Gorros
+  'RA-RH-ELF50': 'https://phillips-safety.com/wp-content/uploads/2024/06/RA-RH-LL25-model_front_cut.jpg',
+  'QS-RH-ELF50-NYBK': 'https://phillips-safety.com/wp-content/uploads/2024/07/Radiation-Hats-Blue-Angle-Front.jpg',
+  'QS-RPC-LL50-NYBL': 'https://phillips-safety.com/wp-content/uploads/2024/07/QS-RPC-LL50-NYBL.jpg',
+  'AT-CAP-05': 'https://phillips-safety.com/wp-content/uploads/2023/12/Disposable_Hat_Side.jpg'
+};
+
+function fotoDe(sku){
+  return FOTO_SKU[sku] || null;
+}
+
 function traducirEtiquetaOpcion(etiqueta){
   return TRADUCCION_ETIQUETA_OPCION[etiqueta] || etiqueta;
 }
@@ -199,6 +259,7 @@ function parsearPestaña(filas, nombrePestaña){
       material: colMaterial >= 0 ? (fila[colMaterial] || '').trim() : '',
       tela: colTela >= 0 ? (fila[colTela] || '').trim() : '',
       opciones,
+      foto: fotoDe(sku),
       precioUsd
     });
   }
@@ -288,6 +349,7 @@ app.get('/api/productos', async (req, res) => {
         material: p.material,
         tela: p.tela,
         opciones: p.opciones,
+        foto: p.foto,
         neto: precios.neto,
         iva: precios.iva,
         total: precios.total
@@ -317,7 +379,7 @@ app.post('/api/productos/refrescar', async (req, res) => {
     const tc = await cargarTipoCambio();
     const productosConPrecio = datos.map(p => {
       const precios = calcularPrecio(p.precioUsd, tc.valor);
-      return { seccion: p.seccion, sku: p.sku, modelo: p.modelo, descripcion: p.descripcion, material: p.material, tela: p.tela, opciones: p.opciones, neto: precios.neto, iva: precios.iva, total: precios.total };
+      return { seccion: p.seccion, sku: p.sku, modelo: p.modelo, descripcion: p.descripcion, material: p.material, tela: p.tela, opciones: p.opciones, foto: p.foto, neto: precios.neto, iva: precios.iva, total: precios.total };
     });
     res.json({ productos: productosConPrecio, avisos, refrescado: true });
   }catch(e){
