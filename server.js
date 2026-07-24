@@ -152,15 +152,16 @@ function traducirTipo(tipo){
   return TRADUCCION_TIPO[(tipo || '').toUpperCase().trim()] || tipo;
 }
 
-// Traducción "best effort" de las descripciones de Radiation Glasses: estas
-// siguen frases bastante repetidas ("Phillips Safety X Style in COLOR color
-// with no prescription", "Nike X frame in COLOR color, size N, with..."), así
-// que se traducen por reemplazo de frases en vez de traducir cada una a mano
-// (son ~100 productos). Los nombres propios (modelo, color) quedan igual.
-function traducirDescripcionLentes(desc){
+// Traducción "best effort" de descripciones que no tienen traducción exacta
+// por SKU: en vez de traducir cada una a mano (son cientos de productos entre
+// todas las categorías), se reemplazan frases técnicas repetidas por su
+// equivalente en español. Lo que no calza queda en inglés (mejor eso que nada,
+// y son términos técnicos igual de entendibles: "Pb Eq", medidas en pulgadas, etc.)
+function traducirDescripcionGenerica(desc){
   if (!desc) return desc;
   let d = desc;
   const reemplazos = [
+    // --- Radiation Glasses ---
     [/\bwith no prescription\b/gi, 'sin graduación'],
     [/\bwith Single Vision lens\b/gi, 'con lente monofocal'],
     [/\bwith Progressive Bifocal lens\b/gi, 'con lente progresivo/bifocal'],
@@ -176,6 +177,81 @@ function traducirDescripcionLentes(desc){
     [/\bframe in\b/gi, 'marco en'],
     [/\bin (\w[\w/]*) color\b/gi, 'color $1'],
     [/,\s*size\s+(\d+),\s*/gi, ', talla $1, '],
+
+    // --- Barreras (Radiation - Barriers) ---
+    [/\bMobile Leaded Barrier\b/gi, 'Barrera móvil plomada'],
+    [/\bMobile Lead Barrier\b/gi, 'Barrera móvil de plomo'],
+    [/\bTilted Mobile Leaded Barrier\b/gi, 'Barrera móvil plomada inclinable'],
+    [/\bCollapsible Mobile Lead Barrier\b/gi, 'Barrera móvil de plomo plegable'],
+    [/\bInterventional Radiology Barrier\b/gi, 'Barrera de radiología intervencional'],
+    [/\bleaded window size\b/gi, 'tamaño de ventana plomada'],
+    [/\bLeaded Window Size\b/gi, 'Tamaño de ventana plomada'],
+    [/\bOverall Size\b/gi, 'Tamaño total'],
+    [/\bMRI SAFE NON MAGNETIC\b/gi, 'seguro para RM, no magnético'],
+    [/\bNotched Style\b/gi, 'estilo con muesca'],
+    [/\bShorty\b/gi, 'corta'],
+    [/\bLead Free Acylic Barrier\b/gi, 'Barrera acrílica libre de plomo'],
+    [/\bReach Through Curtain\b/gi, 'cortina de acceso manual'],
+    [/\bStanding Mobile Shield\b/gi, 'Blindaje móvil de pie'],
+    [/\bTable Shield\b/gi, 'Protector de mesa'],
+    [/\bPleated Table Shield\b/gi, 'Protector de mesa plisado'],
+    [/\bMobile Porta Shield\b/gi, 'Protector portátil móvil'],
+    [/\bRadiation Shielding Pleated\b/gi, 'Blindaje de radiación plisado'],
+
+    // --- Repisas (Radiation - Apron Racks) ---
+    [/\bWall Mounted Apron Rack\b/gi, 'Repisa de pared para delantales'],
+    [/\bWall Mounted Lead Apron Peg Rack\b/gi, 'Colgador de pared tipo gancho para delantales plomados'],
+    [/\bWall Mounted Steel Multi Apron and Glove rack\b/gi, 'Repisa de pared de acero para delantales y guantes'],
+    [/\bWall Mounted Chrome Lead Apron and Glove Holder\b/gi, 'Soporte de pared cromado para delantal y guantes'],
+    [/\bMobile Apron Rack\b/gi, 'Repisa móvil para delantales'],
+    [/\bMobile Radiation Apron Valet Rack\b/gi, 'Repisa móvil tipo valet para delantales'],
+    [/\bSwing Rods?\b/gi, 'varillas giratorias'],
+    [/\bSwing Arms?\b/gi, 'brazos giratorios'],
+    [/\bDeluxe Mobile Lead Apron Locker\b/gi, 'Casillero móvil de lujo para delantales plomados'],
+    [/\bClosed Loop Chrome Lead Apron Hanger\b/gi, 'Colgador cromado de argolla cerrada para delantal plomado'],
+    [/\bOpen Loop Chrome Lead Apron Hanger\b/gi, 'Colgador cromado de argolla abierta para delantal plomado'],
+
+    // --- Señalética (Radiation - Signs) ---
+    [/\bRadiation Caution Sign\b/gi, 'Letrero de precaución por radiación'],
+    [/\bX-Ray in Use Sign\b/gi, 'Letrero de rayos X en uso'],
+    [/\bX-Ray Room Sign\b/gi, 'Letrero de sala de rayos X'],
+    [/\bBiohazard Caution Sign\b/gi, 'Letrero de precaución de riesgo biológico'],
+    [/\bWarning Sign\b/gi, 'Letrero de advertencia'],
+    [/\bSilk Screened Sign\b/gi, 'Letrero serigrafiado'],
+    [/\bMagnetic\b/gi, 'Magnético'],
+    [/\bIlluminated\b/gi, 'Iluminado'],
+    [/\bLed Sign\b/gi, 'Letrero LED'],
+    [/\bwith Battery Backup\b/gi, 'con batería de respaldo'],
+
+    // --- Medicina Nuclear (Radiation - Nuclear Medicine) ---
+    [/\bErgo L-Block Shield\b/gi, 'Blindaje ergonómico tipo L-Block'],
+    [/\bEconomy L Block Shield\b/gi, 'Blindaje económico tipo L-Block'],
+    [/\bL-Block Shield and Cave\b/gi, 'Blindaje tipo L-Block con cueva'],
+    [/\bL-Block Shield Only\b/gi, 'Solo blindaje tipo L-Block'],
+    [/\bL-Block Cave Only\b/gi, 'Solo cueva tipo L-Block'],
+    [/\bMobile Injection Cart\b/gi, 'Carro móvil de inyección'],
+    [/\bMulti-Functional Mobile Injection Vehicle\b/gi, 'Vehículo móvil de inyección multifuncional'],
+    [/\bShielded Waste Container\b/gi, 'Contenedor de residuos blindado'],
+    [/\bMobile Shielded Waste Container\b/gi, 'Contenedor móvil de residuos blindado'],
+    [/\bShielded Waste Decay Barrels?\b/gi, 'Barriles blindados de decaimiento de residuos'],
+    [/\bSyringe Shield\b/gi, 'Protector de jeringa'],
+    [/\bRinse Lead Cans?\b/gi, 'Recipientes de enjuague plomados'],
+    [/\bShielded Sharps Container\b/gi, 'Contenedor blindado de cortopunzantes'],
+    [/\bwith Electric Lift\b/gi, 'con elevador eléctrico'],
+
+    // --- Bloqueadores / Marcadores ---
+    [/\bLead Free Blockers\b/gi, 'Bloqueadores libres de plomo'],
+    [/\bCustom OEM Calibration Blocker\b/gi, 'Bloqueador de calibración OEM a medida'],
+    [/\bLeaded PB Markers?\b/gi, 'Marcadores plomados'],
+    [/\bLeaded PB X-ray Markers?\b/gi, 'Marcadores radiográficos plomados'],
+    [/\bAluminum Markers?\b/gi, 'Marcadores de aluminio'],
+    [/\bwith Aluminum Backs?\b/gi, 'con respaldo de aluminio'],
+    [/\bReversable L and R Radiation Marker\b/gi, 'Marcador radiográfico reversible D/I'],
+    [/\bMade of Metal\b/gi, 'de metal'],
+    [/\bR\s*&\s*L\b/g, 'D e I'],
+
+    // --- Genéricos que aparecen en varias categorías ---
+    [/\bRequest a [Qq]uote\b/gi, 'Cotizar bajo pedido'],
   ];
   reemplazos.forEach(([regex, reemplazo]) => { d = d.replace(regex, reemplazo); });
   return d;
@@ -268,7 +344,7 @@ function traducirEtiquetaOpcion(etiqueta){
 
 function traducir(sku, seccion, descripcionOriginal){
   return {
-    descripcion: TRADUCCION_SKU[sku] || traducirDescripcionLentes(descripcionOriginal),
+    descripcion: TRADUCCION_SKU[sku] || traducirDescripcionGenerica(descripcionOriginal),
     seccion: TRADUCCION_SECCION[seccion] || seccion
   };
 }
