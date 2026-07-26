@@ -1138,15 +1138,10 @@
         }
 
         function productosFiltradosActuales() {
-            // Re-aplica filtros actuales para mantener estado visual
-            const cat = document.getElementById('filtro-categoria').value;
-            const mat = document.getElementById('filtro-material').value;
-            const pb = document.getElementById('filtro-pb').value;
+            // Re-aplica el filtro actual (categoría activa + buscador) para mantener estado visual
             const busq = document.getElementById('buscar-producto').value.toLowerCase();
             let f = productos;
-            if (cat) f = f.filter(p => p.seccion === cat);
-            if (mat) f = f.filter(p => p.material && p.material.toLowerCase().includes(mat.toLowerCase()));
-            if (pb) f = f.filter(p => p.descripcion && p.descripcion.includes(pb));
+            if (categoriaActiva) f = f.filter(p => p.seccion === categoriaActiva);
             if (busq) f = f.filter(p => p.sku.toLowerCase().includes(busq) || p.descripcion.toLowerCase().includes(busq));
             return f;
         }
