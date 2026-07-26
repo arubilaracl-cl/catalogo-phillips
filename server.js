@@ -15,6 +15,7 @@ const express = require('express');
 const Papa = require('papaparse');
 
 const app = express();
+app.use(express.json({ limit: '2mb' }));
 const PORT = process.env.PORT || 3000;
 
 // ---------- configuración de la planilla ----------
@@ -565,6 +566,119 @@ app.post('/api/productos/refrescar', async (req, res) => {
       return { seccion: p.seccion, sku: p.sku, modelo: p.modelo, descripcion: p.descripcion, material: p.material, tela: p.tela, opciones: p.opciones, foto: p.foto, neto: precios.neto, iva: precios.iva, total: precios.total };
     });
     res.json({ productos: productosConPrecio, avisos, refrescado: true });
+  }catch(e){
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ---------- envío de cotización (Resend: email HTML + CSV adjunto) ----------
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const RESEND_REMITENTE = process.env.RESEND_REMITENTE || 'onboarding@resend.dev';
+const RESEND_DESTINATARIO = process.env.RESEND_DESTINATARIO || 'rubilar.andres@outlook.com';
+
+function csvEscape(valor){
+  const s = String(valor ?? '');
+  if (/[",\n;]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+  return s;
+}
+
+function generarCsvCotizacion(items){
+  const encabezado = ['SKU', 'Producto', 'Cantidad', 'Neto unitario', 'Subtotal (con IVA)'];
+  const filas = items.map(it => [
+    it.sku, it.nombre, it.cantidad, it.netoUnitario, it.subtotalConIva
+  ]);
+  const lineas = [encabezado, ...filas].map(fila => fila.map(csvEscape).join(','));
+  return lineas.join('\r\n');
+}
+
+function generarHtmlCotizacion({ cliente, items, total }){
+  const filasHtml = items.map(it => `
+    <tr>
+      <td style="padding:6px 10px;border-bottom:1px solid #eee;">${it.sku}</td>
+      <td style="padding:6px 10px;border-bottom:1px solid #eee;">${it.nombre}</td>
+      <td style="padding:6px 10px;border-bottom:1px solid #eee;text-align:center;">${it.cantidad}</td>
+      <td style="padding:6px 10px;border-bottom:1px solid #eee;text-align:right;">$${Number(it.netoUnitario).toLocaleString('es-CL')}</td>
+      <td style="padding:6px 10px;border-bottom:1px solid #eee;text-align:right;">$${Number(it.subtotalConIva).toLocaleString('es-CL')}</td>
+    </tr>
+  `).join('');
+
+  return `
+    <div style="font-family:Arial,sans-serif;color:#1a2b33;max-width:640px;">
+      <h2 style="margin-bottom:4px;">Nueva solicitud de cotización — Catálogo Phillips</h2>
+      <p style="color:#5a6b73;margin-top:0;">Recibida desde catalogo-phillips.onrender.com</p>
+
+      <h3>Datos del solicitante</h3>
+      <table style="font-size:14px;">
+        <tr><td style="padding:2px 8px 2px 0;color:#5a6b73;">Nombre:</td><td><b>${cliente.nombre || '—'}</b></td></tr>
+        <tr><td style="padding:2px 8px 2px 0;color:#5a6b73;">Empresa:</td><td>${cliente.empresa || '—'}</td></tr>
+        <tr><td style="padding:2px 8px 2px 0;color:#5a6b73;">Email:</td><td>${cliente.email || '—'}</td></tr>
+        <tr><td style="padding:2px 8px 2px 0;color:#5a6b73;">Teléfono:</td><td>${cliente.telefono || '—'}</td></tr>
+      </table>
+      ${cliente.comentarios ? `<p><b>Comentarios:</b> ${cliente.comentarios}</p>` : ''}
+
+      <h3>Productos solicitados</h3>
+      <table style="width:100%;border-collapse:collapse;font-size:13.5px;">
+        <thead>
+          <tr style="background:#f0eee6;">
+            <th style="padding:6px 10px;text-align:left;">SKU</th>
+            <th style="padding:6px 10px;text-align:left;">Producto</th>
+            <th style="padding:6px 10px;text-align:center;">Cant.</th>
+            <th style="padding:6px 10px;text-align:right;">Neto unit.</th>
+            <th style="padding:6px 10px;text-align:right;">Subtotal (IVA inc.)</th>
+          </tr>
+        </thead>
+        <tbody>${filasHtml}</tbody>
+      </table>
+      <p style="text-align:right;font-size:16px;margin-top:10px;"><b>Total: $${Number(total).toLocaleString('es-CL')}</b></p>
+
+      <p style="color:#8a8578;font-size:12px;">Va adjunto un CSV con el detalle, por si quieres importarlo directo a Excel.</p>
+    </div>
+  `;
+}
+
+app.post('/api/enviar-cotizacion', async (req, res) => {
+  try{
+    if (!RESEND_API_KEY){
+      return res.status(500).json({ error: 'Falta configurar RESEND_API_KEY en el servidor' });
+    }
+
+    const { cliente, items, total } = req.body || {};
+
+    if (!cliente || !cliente.nombre || !cliente.email){
+      return res.status(400).json({ error: 'Faltan datos del solicitante (nombre y email son obligatorios)' });
+    }
+    if (!Array.isArray(items) || items.length === 0){
+      return res.status(400).json({ error: 'El carrito de cotización está vacío' });
+    }
+
+    const csv = generarCsvCotizacion(items);
+    const csvBase64 = Buffer.from(csv, 'utf8').toString('base64');
+    const html = generarHtmlCotizacion({ cliente, items, total });
+
+    const resendRes = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${RESEND_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        from: RESEND_REMITENTE,
+        to: [RESEND_DESTINATARIO],
+        reply_to: cliente.email,
+        subject: `Cotización catálogo Phillips — ${cliente.nombre}${cliente.empresa ? ' (' + cliente.empresa + ')' : ''}`,
+        html,
+        attachments: [
+          { filename: 'cotizacion.csv', content: csvBase64 }
+        ]
+      })
+    });
+
+    if (!resendRes.ok){
+      const errText = await resendRes.text();
+      throw new Error(`Resend error ${resendRes.status}: ${errText}`);
+    }
+
+    res.json({ ok: true });
   }catch(e){
     res.status(500).json({ error: e.message });
   }
