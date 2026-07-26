@@ -223,8 +223,8 @@
             position: sticky;
             top: 78px; /* debajo del header sticky */
             z-index: 90;
-            background: rgba(245,247,250,0.92);
-            backdrop-filter: blur(6px);
+            background: #ffffff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
             border-bottom: 1px solid var(--borde);
             padding: 10px 20px;
         }
@@ -233,10 +233,11 @@
             max-width: 1200px;
             margin: 0 auto;
             display: flex;
+            flex-wrap: wrap;
             gap: 8px;
-            overflow-x: auto;
+            max-height: 172px; /* ~4 filas de chips */
+            overflow-y: auto;
             scrollbar-width: thin;
-            padding-bottom: 2px;
         }
 
         .categorias-cargando {
