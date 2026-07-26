@@ -107,7 +107,7 @@
 <main>
   <div class="aviso" id="avisoFase1">
     <b>Ahora con toda la división "Radiation" de Phillips (8 categorías)</b>
-    El servidor (desplegado en Render) lee en vivo las pestañas de Apparel, Lentes plomados, Barreras, Repisas, Señalética, Medicina Nuclear, Bloqueadores y Marcadores. Las fotos de referencia solo están disponibles por ahora en la categoría de Apparel (delantales, protectores, gorros) — el resto de categorías muestra "Foto de referencia próximamente". Las descripciones de los productos nuevos vienen tal como las escribe Phillips (en inglés) — se irán traduciendo de a poco. El botón de "Enviar solicitud de cotización" arma el resumen y abre tu correo con todo prellenado para que lo revises antes de escalarlo.
+    El servidor (desplegado en Render) lee en vivo las pestañas de Apparel, Lentes plomados, Barreras, Repisas, Señalética, Medicina Nuclear, Bloqueadores y Marcadores. Las fotos de referencia solo están disponibles por ahora en la categoría de Apparel (delantales, protectores, gorros) — el resto de categorías muestra "Foto de referencia próximamente". Las descripciones de los productos nuevos vienen tal como las escribe Phillips (en inglés) — se irán traduciendo de a poco. El botón de "Enviar solicitud de cotización" envía tu pedido directo por correo, con el detalle en un archivo adjunto.
   </div>
   <div class="aviso" id="avisoVolatilidad">
     <b>Los precios en pesos chilenos son referenciales</b>
@@ -150,7 +150,7 @@
     </div>
 
     <div class="accionesCarrito">
-      <button onclick="confirmarPedido()">Enviar solicitud de cotización</button>
+      <button id="btnConfirmarPedido" onclick="confirmarPedido()">Enviar solicitud de cotización</button>
       <button class="secondary" onclick="cerrarCarrito()">Seguir viendo catálogo</button>
     </div>
   </div>
@@ -339,7 +339,7 @@ function renderCarrito(){
     `Neto: $${totalNeto.toLocaleString('es-CL')} &nbsp;·&nbsp; IVA: $${totalIva.toLocaleString('es-CL')} &nbsp;·&nbsp; <b>Total: $${totalGeneral.toLocaleString('es-CL')}</b>`;
 }
 
-function confirmarPedido(){
+async function confirmarPedido(){
   if (!carrito.length){ alert('Tu cotización está vacía.'); return; }
   const nombre = document.getElementById('clienteNombre').value.trim();
   const email = document.getElementById('clienteEmail').value.trim();
@@ -349,34 +349,42 @@ function confirmarPedido(){
   const telefono = document.getElementById('clienteTelefono').value.trim();
   const comentarios = document.getElementById('clienteComentarios').value.trim();
 
-  const lineas = carrito.map(i =>
-    `- ${i.nombre} | Cant: ${i.cantidad} | Neto unit.: $${i.neto.toLocaleString('es-CL')} | Subtotal Neto: $${(i.neto*i.cantidad).toLocaleString('es-CL')} | Subtotal Total: $${(i.total*i.cantidad).toLocaleString('es-CL')}`
-  );
-  const totalNeto = carrito.reduce((s, i) => s + i.neto * i.cantidad, 0);
-  const totalIva = carrito.reduce((s, i) => s + i.iva * i.cantidad, 0);
   const totalGeneral = carrito.reduce((s, i) => s + i.total * i.cantidad, 0);
 
-  const cuerpo = [
-    `Nueva solicitud de cotización — Phillips Safety`,
-    ``,
-    `Cliente: ${nombre}`,
-    `Empresa: ${empresa || '(no indicado)'}`,
-    `Email: ${email}`,
-    `Teléfono: ${telefono || '(no indicado)'}`,
-    ``,
-    `ITEMS:`,
-    ...lineas,
-    ``,
-    `NETO: $${totalNeto.toLocaleString('es-CL')}`,
-    `IVA (19%): $${totalIva.toLocaleString('es-CL')}`,
-    `TOTAL: $${totalGeneral.toLocaleString('es-CL')}`,
-    ``,
-    comentarios ? `Comentarios del cliente: ${comentarios}` : ''
-  ].filter(Boolean).join('\n');
+  const items = carrito.map(i => ({
+    sku: i.sku,
+    nombre: i.nombre,
+    cantidad: i.cantidad,
+    netoUnitario: i.neto,
+    subtotalConIva: i.total * i.cantidad
+  }));
 
-  const asunto = encodeURIComponent(`Cotización Phillips Safety — ${nombre}`);
-  const cuerpoCodificado = encodeURIComponent(cuerpo);
-  window.location.href = `mailto:?subject=${asunto}&body=${cuerpoCodificado}`;
+  const btn = document.getElementById('btnConfirmarPedido');
+  const textoOriginal = btn ? btn.textContent : '';
+  if (btn){ btn.disabled = true; btn.textContent = 'Enviando…'; }
+
+  try{
+    const res = await fetch('/api/enviar-cotizacion', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        cliente: { nombre, empresa, email, telefono, comentarios },
+        items,
+        total: totalGeneral
+      })
+    });
+    const data = await res.json();
+    if (!res.ok || !data.ok) throw new Error(data.error || 'Error desconocido');
+
+    alert('¡Listo! Tu solicitud de cotización fue enviada correctamente.');
+    carrito = [];
+    actualizarContadorCarrito();
+    cerrarCarrito();
+  }catch(e){
+    alert('No se pudo enviar la cotización. Intenta de nuevo en unos minutos, o contáctanos directamente.\n\n(Detalle técnico: ' + e.message + ')');
+  }finally{
+    if (btn){ btn.disabled = false; btn.textContent = textoOriginal; }
+  }
 }
 
 // ---------- init ----------
