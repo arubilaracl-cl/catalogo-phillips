@@ -1,427 +1,1291 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es-CL">
 <head>
-<meta charset="UTF-8">
-<title>Catálogo Phillips Safety — Piloto</title>
-<style>
-  :root{
-    --navy:#0F2740; --green:#1F6D4C; --ink:#20313F; --ink-soft:#5B707C;
-    --line:#D9E2E6; --bg:#F4F7F8; --mono: 'SFMono-Regular', Consolas, monospace;
-    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  }
-  *{box-sizing:border-box;}
-  body{margin:0; background:var(--bg); font-family:var(--sans); color:var(--ink);}
-  header{background:var(--navy); color:#fff; padding:16px 24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;}
-  header h1{margin:0; font-size:17px;}
-  header .estadoTC{font-size:12px; color:#B7C7D4;}
-  main{max-width:1200px; margin:0 auto; padding:20px;}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Quantical — Distribuidor oficial de Phillips Safety Products en Chile. Equipos de protección radiológica Made in USA: delantales plomados, lentes, barreras, medicina nuclear.">
+    <meta name="keywords" content="protección radiológica, delantales plomados, lentes plomados, Phillips Safety, Chile, hospitales, radiología">
+    <title>Quantical | Distribuidor Oficial Phillips Safety — Protección Radiológica Chile</title>
+    <meta property="og:title" content="Quantical | Distribuidor Oficial Phillips Safety">
+    <meta property="og:description" content="Equipos de protección radiológica Phillips Safety para hospitales y clínicas en Chile: delantales plomados, lentes, barreras, medicina nuclear y más.">
+    <meta property="og:image" content="/logos/quantical.png">
+    <meta property="og:type" content="website">
+    <link rel="icon" href="/logos/quantical.png" type="image/png">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  .aviso{ background:#FFF6E9; border:1px solid #F0D9A8; color:#8A5A00; padding:12px 14px; border-radius:8px; font-size:13px; margin-bottom:16px; line-height:1.6; }
-  .aviso.error{ background:#FCEEEC; border-color:#E3B3A9; color:#8A2E20; }
-  .aviso b{ display:block; margin-bottom:4px; }
+        :root {
+            --quantica: #00a8b5;
+            --quantica-dark: #008a95;
+            --phillips: #1e4070;
+            --phillips-light: #2c5aa0;
+            --gris-bg: #f5f7fa;
+            --gris-texto: #333;
+            --gris-suave: #666;
+            --borde: #e0e0e0;
+            --exito: #28a745;
+            --error: #d32f2f;
+        }
 
-  .barraSuperior{ display:flex; gap:16px; align-items:flex-end; flex-wrap:wrap; margin-bottom:18px; background:#fff; border:1px solid var(--line); border-radius:10px; padding:14px 16px; }
-  .campo label{ display:block; font-size:10.5px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.03em; margin-bottom:3px; }
-  .campo input{ padding:7px 9px; border:1px solid var(--line); border-radius:6px; font-family:var(--mono); font-size:13px; width:110px; }
-  .buscador{flex:1; min-width:180px;}
-  .buscador input{ width:100%; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--gris-texto);
+            background: var(--gris-bg);
+        }
 
-  .seccionTitulo{ font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--green); margin:26px 0 10px; padding-bottom:6px; border-bottom:2px solid var(--line); scroll-margin-top:16px; }
+        /* ===== HEADER CON LOGOS ===== */
+        .header-main {
+            background: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            border-bottom: 3px solid var(--quantica);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
 
-  .navCategorias{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px; }
-  .navCategorias .chip{
-    background:#fff; border:1px solid var(--navy); color:var(--navy); border-radius:20px;
-    padding:8px 14px; font-size:12.5px; font-weight:600; cursor:pointer; white-space:nowrap;
-  }
-  .navCategorias .chip:hover{ background:var(--navy); color:#fff; }
-  .navCategorias .chip .cant{ color:var(--ink-soft); font-weight:400; margin-left:4px; }
-  .navCategorias .chip:hover .cant{ color:#cfe0d8; }
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
 
-  #btnVolver{
-    display:none; position:fixed; bottom:20px; left:20px; background:#fff; color:var(--navy);
-    border:1px solid var(--navy); padding:10px 16px; border-radius:30px; box-shadow:0 4px 14px rgba(0,0,0,.15);
-    cursor:pointer; font-size:13px; font-weight:600; z-index:49;
-  }
-  #btnVolver.visible{ display:block; }
+        .header-logos {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
 
-  .grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:14px; }
-  .prodCard{ background:#fff; border:1px solid var(--line); border-radius:10px; padding:14px; display:flex; flex-direction:column; }
-  .prodCard .fotoWrap{ width:100%; aspect-ratio:1/1; background:#F7F9FA; border-radius:8px; margin-bottom:10px; display:flex; align-items:center; justify-content:center; overflow:hidden; }
-  .prodCard .fotoWrap img{ width:100%; height:100%; object-fit:contain; }
-  .prodCard .fotoWrap .sinFoto{ color:#C3CDD1; font-size:11px; text-align:center; padding:10px; }
-  .prodCard .sku{ font-family:var(--mono); font-size:11px; color:var(--ink-soft); }
-  .prodCard .nombre{ font-size:13.5px; font-weight:600; margin:4px 0 6px; line-height:1.3; }
-  .prodCard .desc{ font-size:11.5px; color:var(--ink-soft); line-height:1.5; flex:1; margin-bottom:8px; }
-  .prodCard .etiquetas{ display:flex; gap:5px; flex-wrap:wrap; margin:4px 0 6px; }
-  .prodCard .etiqueta{ background:#EEF2F3; color:var(--ink-soft); font-size:10px; padding:2px 7px; border-radius:10px; }
-  .prodCard .opciones{ font-size:10.5px; color:var(--ink-soft); background:#F7F9FA; border-radius:6px; padding:6px 8px; margin-bottom:8px; line-height:1.5; }
-  .prodCard .nota-personalizacion{ font-size:10px; color:#9AA7AD; font-style:italic; margin-top:6px; }
-  .prodCard .precio{ font-size:17px; font-weight:800; color:var(--green); margin-bottom:8px; }
-  .prodCard .precio .usd{ font-size:10.5px; color:var(--ink-soft); font-weight:400; display:block; margin-top:4px; }
-  .prodCard .filaPrecio{ display:flex; justify-content:space-between; align-items:baseline; font-size:12.5px; font-weight:400; color:var(--ink-soft); }
-  .prodCard .filaPrecio.sec{ font-size:11px; }
-  .prodCard .filaPrecio.total{ font-size:16px; font-weight:800; color:var(--green); border-top:1px solid var(--line); margin-top:4px; padding-top:4px; }
-  .prodCard .filaPrecio b{ color:var(--ink); }
-  .prodCard .agregarRow{ display:flex; gap:6px; }
-  .prodCard .agregarRow input{ width:52px; padding:6px; border:1px solid var(--line); border-radius:6px; text-align:center; }
-  .prodCard .agregarRow button{ flex:1; background:var(--navy); color:#fff; border:none; border-radius:6px; padding:7px 10px; font-size:12.5px; cursor:pointer; }
-  .prodCard .agregarRow button:hover{ filter:brightness(1.15); }
+        .logo-quantica {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
 
-  #carritoFlotante{
-    position:fixed; bottom:20px; right:20px; background:var(--navy); color:#fff; padding:12px 18px;
-    border-radius:30px; box-shadow:0 4px 14px rgba(0,0,0,.2); cursor:pointer; font-size:14px; font-weight:600; z-index:50;
-  }
-  #carritoFlotante .cant{ background:var(--green); border-radius:50%; padding:2px 8px; margin-left:8px; font-size:12px; }
+        .logo-quantica img {
+            height: 45px;
+            width: auto;
+            object-fit: contain;
+        }
 
-  #modalCarrito{
-    display:none; position:fixed; inset:0; background:rgba(15,39,64,.5); z-index:100; align-items:center; justify-content:center; padding:20px;
-  }
-  #modalCarrito.open{ display:flex; }
-  .cajaCarrito{ background:#fff; border-radius:12px; padding:22px; max-width:620px; width:100%; max-height:88vh; overflow:auto; }
-  .cajaCarrito h2{ margin-top:0; font-size:16px; }
-  table.tablaCarrito{ width:100%; border-collapse:collapse; font-size:12.5px; margin-bottom:14px; }
-  table.tablaCarrito th{ text-align:left; font-size:10.5px; color:var(--ink-soft); text-transform:uppercase; padding:5px; border-bottom:1px solid var(--line); }
-  table.tablaCarrito td{ padding:6px 5px; border-bottom:1px solid #EEF2F3; vertical-align:middle; }
-  table.tablaCarrito input.cantEdit{ width:46px; padding:4px; text-align:center; border:1px solid var(--line); border-radius:5px; }
-  .quitarBtn{ background:none; border:none; color:#B23A34; cursor:pointer; font-size:12px; }
-  .totalCarrito{ text-align:right; font-size:16px; font-weight:800; color:var(--green); margin-bottom:16px; }
+        .logo-quantica .subtitulo {
+            font-size: 0.72rem;
+            color: var(--gris-suave);
+            margin-top: 2px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
 
-  .formCliente{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
-  .formCliente .full{ grid-column:1/-1; }
-  .formCliente label{ display:block; font-size:10.5px; color:var(--ink-soft); margin-bottom:3px; }
-  .formCliente input, .formCliente textarea{ width:100%; padding:7px 9px; border:1px solid var(--line); border-radius:6px; font-size:13px; }
+        .separador-logo {
+            width: 1px;
+            height: 45px;
+            background: var(--borde);
+        }
 
-  .accionesCarrito{ display:flex; gap:8px; flex-wrap:wrap; }
-  .accionesCarrito button{ padding:10px 16px; border-radius:8px; border:1px solid var(--navy); background:var(--navy); color:#fff; font-size:13.5px; cursor:pointer; }
-  .accionesCarrito button.secondary{ background:#fff; color:var(--navy); }
-  .cerrarModal{ float:right; background:none; border:none; font-size:18px; cursor:pointer; color:var(--ink-soft); }
-</style>
+        .logo-phillips {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-phillips img {
+            height: 40px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .logo-phillips .badge-usa {
+            background: var(--phillips);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-menu a {
+            color: var(--gris-texto);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            font-size: 0.95rem;
+        }
+
+        .nav-menu a:hover { color: var(--quantica); }
+
+        .cart-button {
+            background: var(--quantica);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,168,181,0.3);
+            cursor: pointer;
+            border: none;
+            font-size: 0.95rem;
+        }
+
+        .cart-button:hover {
+            background: var(--quantica-dark);
+            transform: scale(1.05);
+        }
+
+        /* ===== HERO ===== */
+        .hero {
+            background:
+                radial-gradient(circle at 15% 20%, rgba(255,255,255,0.08) 0, transparent 40%),
+                radial-gradient(circle at 85% 80%, rgba(255,255,255,0.06) 0, transparent 45%),
+                linear-gradient(135deg, var(--quantica) 0%, var(--phillips) 100%);
+            color: white;
+            padding: 4rem 20px;
+            text-align: center;
+        }
+
+        .hero-content { max-width: 800px; margin: 0 auto; }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
+        }
+
+        .hero-badges {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        .badge {
+            background: rgba(255,255,255,0.2);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            backdrop-filter: blur(10px);
+        }
+
+        /* ===== TIPO DE CAMBIO ===== */
+        .tipo-cambio-bar {
+            background: var(--phillips);
+            color: white;
+            text-align: center;
+            padding: 0.6rem;
+            font-size: 0.85rem;
+        }
+
+        .tipo-cambio-bar strong { color: #ffd700; }
+
+        /* ===== SECCIONES ===== */
+        .seccion {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 20px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2rem;
+            color: var(--phillips);
+            margin-bottom: 2rem;
+            font-weight: 700;
+        }
+
+        /* ===== CATEGORÍAS ===== */
+        .categorias-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .categoria-card {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            border-top: 4px solid var(--quantica);
+        }
+
+        .categoria-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+        }
+
+        .categoria-icon { font-size: 3rem; margin-bottom: 1rem; }
+
+        .categoria-card h3 {
+            color: var(--phillips);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .categoria-card p {
+            color: var(--gris-suave);
+            font-size: 0.85rem;
+        }
+
+        /* ===== FILTROS ===== */
+        .filtros-container {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .filtros-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .filtro-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--phillips);
+            font-size: 0.9rem;
+        }
+
+        .filtro-group select,
+        .filtro-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--borde);
+            border-radius: 5px;
+            font-size: 1rem;
+            background: white;
+        }
+
+        .filtro-group input:focus,
+        .filtro-group select:focus {
+            outline: none;
+            border-color: var(--quantica);
+            box-shadow: 0 0 0 3px rgba(0,168,181,0.1);
+        }
+
+        /* ===== PRODUCTOS ===== */
+        .productos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .producto-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .producto-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+        }
+
+        .producto-imagen-wrap {
+            width: 100%;
+            height: 250px;
+            background: #fafafa;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+
+        .producto-imagen {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .sin-foto {
+            color: #c3cdd1;
+            font-size: 0.8rem;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .producto-info {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .producto-sku {
+            font-size: 0.8rem;
+            color: var(--gris-suave);
+            margin-bottom: 0.5rem;
+            font-family: 'Courier New', monospace;
+        }
+
+        .producto-nombre {
+            font-size: 1.05rem;
+            color: var(--gris-texto);
+            margin-bottom: 1rem;
+            font-weight: 600;
+            min-height: 3rem;
+            line-height: 1.3;
+        }
+
+        .producto-especificaciones {
+            background: #f8f9fa;
+            padding: 0.8rem 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            font-size: 0.85rem;
+        }
+
+        .producto-especificaciones div { margin-bottom: 0.25rem; }
+        .producto-especificaciones strong { color: var(--phillips); }
+
+        .producto-badges {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .producto-badge {
+            background: var(--phillips);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+
+        .producto-badge.certificacion { background: var(--exito); }
+
+        .producto-precio {
+            font-size: 1.5rem;
+            color: var(--quantica);
+            font-weight: bold;
+            margin-bottom: 0.3rem;
+        }
+
+        .producto-precio small {
+            font-size: 0.75rem;
+            color: var(--gris-suave);
+            font-weight: normal;
+        }
+
+        .producto-precio-neto {
+            font-size: 0.8rem;
+            color: var(--gris-suave);
+            margin-bottom: 1rem;
+        }
+
+        .btn-agregar {
+            width: 100%;
+            background: var(--quantica);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: auto;
+        }
+
+        .btn-agregar:hover { background: var(--quantica-dark); }
+
+        .btn-agregar.agregado {
+            background: var(--exito);
+        }
+
+        /* ===== CONFIANZA ===== */
+        .confianza-section {
+            background: white;
+            padding: 3rem 20px;
+            margin: 3rem 0;
+        }
+
+        .confianza-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 2rem;
+            text-align: center;
+        }
+
+        .confianza-item { padding: 1.5rem; }
+        .confianza-icon { font-size: 3rem; color: var(--quantica); margin-bottom: 1rem; }
+        .confianza-item h3 { color: var(--phillips); margin-bottom: 0.5rem; font-size: 1.1rem; }
+        .confianza-item p { color: var(--gris-suave); font-size: 0.9rem; }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: var(--phillips);
+            color: white;
+            padding: 2.5rem 20px 1.5rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-logos {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .footer-logos img {
+            height: 40px;
+            width: auto;
+            object-fit: contain;
+            filter: brightness(0) invert(1);
+            opacity: 0.95;
+        }
+
+        .footer-info {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .footer-info p { margin-bottom: 0.5rem; }
+
+        .footer-contacto {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin: 1rem 0;
+            font-size: 0.95rem;
+        }
+
+        .footer-contacto a {
+            color: white;
+            text-decoration: none;
+            transition: opacity 0.3s;
+        }
+
+        .footer-contacto a:hover { opacity: 0.8; }
+
+        .footer-legal {
+            text-align: center;
+            opacity: 0.7;
+            font-size: 0.8rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* ===== MODAL COTIZACIÓN ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 20px;
+            box-sizing: border-box;
+            backdrop-filter: blur(2px);
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 10px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            animation: modalFadeIn 0.3s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            background: var(--quantica);
+            color: white;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .modal-header h2 { margin: 0; font-size: 1.4rem; }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: white;
+            line-height: 1;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+        }
+
+        .modal-close:hover { opacity: 0.8; }
+
+        .modal-body { padding: 24px; }
+
+        .resumen-carrito {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1.5rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .resumen-carrito h4 {
+            color: var(--phillips);
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .resumen-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.4rem 0;
+            font-size: 0.85rem;
+            border-bottom: 1px solid var(--borde);
+        }
+
+        .resumen-item:last-child { border-bottom: none; }
+
+        .resumen-total {
+            font-weight: bold;
+            color: var(--quantica);
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 2px solid var(--phillips);
+        }
+
+        .form-group { margin-bottom: 18px; }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: var(--gris-texto);
+            font-size: 0.95rem;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--borde);
+            border-radius: 5px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--quantica);
+            box-shadow: 0 0 0 3px rgba(0,168,181,0.1);
+        }
+
+        .form-group input.invalid { border-color: var(--error); }
+
+        .required { color: var(--error); }
+
+        .error-msg {
+            display: block;
+            color: var(--error);
+            font-size: 0.85rem;
+            margin-top: 4px;
+            min-height: 1em;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .btn-primary, .btn-secondary {
+            padding: 12px 24px;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            border: none;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-primary { background: var(--quantica); color: white; }
+        .btn-primary:hover:not(:disabled) { background: var(--quantica-dark); }
+        .btn-primary:disabled { background: #999; cursor: not-allowed; }
+
+        .btn-secondary { background: #f0f0f0; color: var(--gris-texto); border: 1px solid var(--borde); }
+        .btn-secondary:hover { background: #e0e0e0; }
+
+        /* ===== NOTIFICACIÓN ===== */
+        .notificacion {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--exito);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 10000;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(400px); }
+            to { transform: translateX(0); }
+        }
+
+        /* ===== LOADING ===== */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--gris-suave);
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--quantica);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .header-container { flex-direction: column; gap: 1rem; }
+            .header-logos { justify-content: center; }
+            .nav-menu { flex-wrap: wrap; justify-content: center; gap: 1rem; }
+            .hero h1 { font-size: 1.8rem; }
+            .hero p { font-size: 1rem; }
+            .productos-grid { grid-template-columns: 1fr; }
+            .modal-content { max-width: 100%; margin: 0; border-radius: 0; max-height: 100vh; }
+            .modal-footer { flex-direction: column-reverse; }
+            .btn-primary, .btn-secondary { width: 100%; }
+            .footer-contacto { flex-direction: column; gap: 0.5rem; }
+        }
+    </style>
 </head>
 <body>
+    <!-- HEADER -->
+    <header class="header-main">
+        <div class="header-container">
+            <div class="header-logos">
+                <div class="logo-quantica">
+                    <img src="/logos/quantical.png" alt="Quantical">
+                    <span class="subtitulo">Distribuidor oficial en Chile</span>
+                </div>
+                <div class="separador-logo"></div>
+                <div class="logo-phillips">
+                    <img src="/logos/phillips-safety.webp" alt="Phillips Safety Products Inc.">
+                    <span class="badge-usa">MADE IN USA</span>
+                </div>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="#inicio">Inicio</a></li>
+                    <li><a href="#categorias">Categorías</a></li>
+                    <li><a href="#productos">Productos</a></li>
+                    <li><a href="#contacto">Contacto</a></li>
+                </ul>
+            </nav>
+            <button class="cart-button" id="btn-carrito">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                Cotización <span id="contador-carrito">0</span>
+            </button>
+        </div>
+    </header>
 
-<header>
-  <h1>🦺 Catálogo Phillips Safety — Piloto (Fase 1)</h1>
-  <div class="estadoTC" id="estadoTC">Cargando tipo de cambio…</div>
-</header>
-
-<main>
-  <div class="aviso" id="avisoFase1">
-    <b>Ahora con toda la división "Radiation" de Phillips (8 categorías)</b>
-    El servidor (desplegado en Render) lee en vivo las pestañas de Apparel, Lentes plomados, Barreras, Repisas, Señalética, Medicina Nuclear, Bloqueadores y Marcadores. Las fotos de referencia solo están disponibles por ahora en la categoría de Apparel (delantales, protectores, gorros) — el resto de categorías muestra "Foto de referencia próximamente". Las descripciones de los productos nuevos vienen tal como las escribe Phillips (en inglés) — se irán traduciendo de a poco. El botón de "Enviar solicitud de cotización" envía tu pedido directo por correo, con el detalle en un archivo adjunto.
-  </div>
-  <div class="aviso" id="avisoVolatilidad">
-    <b>Los precios en pesos chilenos son referenciales</b>
-    Se calculan con el tipo de cambio del día y pueden variar levemente entre una visita y otra según el movimiento del dólar. El valor final queda sujeto a confirmación al momento de emitir la cotización formal.
-  </div>
-  <div id="avisos"></div>
-
-  <div class="barraSuperior">
-    <div class="buscador">
-      <label>Buscar producto</label>
-      <input type="text" id="buscador" placeholder="Nombre, SKU o descripción…">
-    </div>
-  </div>
-
-  <div id="navCategorias" class="navCategorias"></div>
-
-  <div id="catalogo">Cargando catálogo…</div>
-</main>
-
-<button id="btnVolver" onclick="volverArriba()" title="Volver al selector de categorías">↑ Categorías</button>
-
-<div id="carritoFlotante" onclick="abrirCarrito()">🛒 Cotización <span class="cant" id="cantCarrito">0</span></div>
-
-<div id="modalCarrito">
-  <div class="cajaCarrito">
-    <button class="cerrarModal" onclick="cerrarCarrito()">✕</button>
-    <h2>Tu cotización</h2>
-    <table class="tablaCarrito">
-      <thead><tr><th>Producto</th><th>Cant.</th><th>Neto unit.</th><th>Subtotal (con IVA)</th><th></th></tr></thead>
-      <tbody id="tbodyCarrito"></tbody>
-    </table>
-    <div class="totalCarrito" id="totalCarrito">Total: $0</div>
-
-    <div class="formCliente">
-      <div><label>Nombre</label><input id="clienteNombre"></div>
-      <div><label>Empresa</label><input id="clienteEmpresa"></div>
-      <div><label>Email</label><input id="clienteEmail" type="email"></div>
-      <div><label>Teléfono</label><input id="clienteTelefono"></div>
-      <div class="full"><label>Comentarios</label><textarea id="clienteComentarios" rows="2"></textarea></div>
+    <!-- TIPO DE CAMBIO -->
+    <div class="tipo-cambio-bar" id="tipo-cambio-bar">
+        💱 Tipo de cambio: <strong id="tc-valor">Cargando...</strong> — Precios referenciales en CLP
     </div>
 
-    <div class="accionesCarrito">
-      <button id="btnConfirmarPedido" onclick="confirmarPedido()">Enviar solicitud de cotización</button>
-      <button class="secondary" onclick="cerrarCarrito()">Seguir viendo catálogo</button>
+    <!-- HERO -->
+    <section class="hero" id="inicio">
+        <div class="hero-content">
+            <h1>Protección Radiológica de Clase Mundial</h1>
+            <p>Equipos certificados IEC fabricados en USA. Importación directa para hospitales y clínicas de Chile.</p>
+            <div class="hero-badges">
+                <div class="badge">🇺🇸 Fabricado en USA</div>
+                <div class="badge">📦 Entrega 3-4 semanas</div>
+                <div class="badge">✅ Certificación IEC 61331</div>
+                <div class="badge">💰 Precios directos de fábrica</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CATEGORÍAS -->
+    <section class="seccion" id="categorias">
+        <h2 class="section-title">Nuestras Categorías</h2>
+        <div class="categorias-grid" id="categorias-grid">
+            <div class="loading" id="loading-categorias">
+                <div class="loading-spinner"></div>
+                <p>Cargando categorías…</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- PRODUCTOS -->
+    <section class="seccion" id="productos">
+        <h2 class="section-title">Catálogo de Productos</h2>
+
+        <div class="filtros-container">
+            <div class="filtros-grid">
+                <div class="filtro-group">
+                    <label for="filtro-categoria">Categoría</label>
+                    <select id="filtro-categoria">
+                        <option value="">Todas las categorías</option>
+                    </select>
+                </div>
+                <div class="filtro-group">
+                    <label for="filtro-material">Material</label>
+                    <select id="filtro-material">
+                        <option value="">Todos los materiales</option>
+                        <option value="Axion">Axion Core</option>
+                        <option value="Plomo Liviano">Plomo Liviano</option>
+                        <option value="Lead Free">Lead Free</option>
+                        <option value="Nylon">Nylon</option>
+                        <option value="Ripstop">Ripstop</option>
+                    </select>
+                </div>
+                <div class="filtro-group">
+                    <label for="filtro-pb">Equivalencia Pb</label>
+                    <select id="filtro-pb">
+                        <option value="">Todas</option>
+                        <option value="0.25">0.25 mm Pb Eq</option>
+                        <option value="0.35">0.35 mm Pb Eq</option>
+                        <option value="0.50">0.50 mm Pb Eq</option>
+                    </select>
+                </div>
+                <div class="filtro-group">
+                    <label for="buscar-producto">Buscar</label>
+                    <input type="text" id="buscar-producto" placeholder="SKU o nombre del producto...">
+                </div>
+            </div>
+        </div>
+
+        <div id="loading-productos" class="loading">
+            <div class="loading-spinner"></div>
+            <p>Cargando catálogo...</p>
+        </div>
+
+        <div class="productos-grid" id="productos-grid"></div>
+    </section>
+
+    <!-- CONFIANZA -->
+    <section class="confianza-section">
+        <div class="confianza-container">
+            <div class="confianza-item">
+                <div class="confianza-icon">🏆</div>
+                <h3>Calidad Certificada</h3>
+                <p>Productos certificados bajo norma IEC 61331-3:2014</p>
+            </div>
+            <div class="confianza-item">
+                <div class="confianza-icon">🇺🇸</div>
+                <h3>Made in USA</h3>
+                <p>Fabricación estadounidense de alta calidad</p>
+            </div>
+            <div class="confianza-item">
+                <div class="confianza-icon">📦</div>
+                <h3>Entrega Garantizada</h3>
+                <p>3-4 semanas con seguimiento personalizado</p>
+            </div>
+            <div class="confianza-item">
+                <div class="confianza-icon">💼</div>
+                <h3>Atención B2B</h3>
+                <p>Cotizaciones personalizadas para instituciones</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer" id="contacto">
+        <div class="footer-content">
+            <div class="footer-logos">
+                <img src="/logos/quantical.png" alt="Quantical">
+                <img src="/logos/phillips-safety.webp" alt="Phillips Safety">
+            </div>
+            <div class="footer-info">
+                <p><strong>Quantical SpA</strong> — Distribuidor Oficial de Phillips Safety Products Inc. en Chile</p>
+            </div>
+            <div class="footer-contacto">
+                <a href="tel:+56226046512">📞 +56 2 2604 6512</a>
+                <a href="mailto:comercial@quantical.cl"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg>comercial@quantical.cl</a>
+            </div>
+            <div class="footer-legal">
+                <p>Precios referenciales en CLP calculados con tipo de cambio del día. Valores sujetos a confirmación al emitir cotización formal.</p>
+                <p style="margin-top: 0.5rem;">© 2026 Quantical SpA. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODAL COTIZACIÓN -->
+    <div id="modal-cotizacion" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Solicitar Cotización</h2>
+                <button class="modal-close" onclick="cerrarModalCotizacion()" aria-label="Cerrar">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="resumen-carrito" id="resumen-carrito">
+                    <h4>Productos en tu cotización:</h4>
+                    <div id="resumen-items"></div>
+                    <div class="resumen-total" id="resumen-total"></div>
+                </div>
+                <form id="form-cotizacion" onsubmit="return false;">
+                    <div class="form-group">
+                        <label for="input-nombre">Nombre completo <span class="required">*</span></label>
+                        <input type="text" id="input-nombre" required autocomplete="name">
+                        <span class="error-msg" id="error-nombre"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="input-email">Email corporativo <span class="required">*</span></label>
+                        <input type="email" id="input-email" required autocomplete="email">
+                        <span class="error-msg" id="error-email"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="input-telefono">Teléfono de contacto</label>
+                        <input type="tel" id="input-telefono" autocomplete="tel" placeholder="+56 9 1234 5678">
+                    </div>
+                    <div class="form-group">
+                        <label for="input-empresa">Empresa / Institución</label>
+                        <input type="text" id="input-empresa" autocomplete="organization">
+                    </div>
+                    <div class="form-group">
+                        <label for="input-comentarios">Comentarios adicionales</label>
+                        <textarea id="input-comentarios" rows="3" placeholder="Ej: Necesito cotización para 3 sucursales, plazos especiales, etc."></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn-secondary" onclick="cerrarModalCotizacion()">Cancelar</button>
+                        <button type="submit" class="btn-primary" id="btn-enviar-cotizacion">Enviar Solicitud</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
 
-<script>
-let productos = []; // {seccion, sku, modelo, descripcion, precioUsd}
-let carrito = []; // {sku, nombre, precioClp, cantidad}
+    <script>
+        // ===== ESTADO GLOBAL =====
+        let productos = [];
+        let carrito = JSON.parse(localStorage.getItem('carrito_quantical') || '[]');
+        let tipoCambio = null;
 
-async function cargarTipoCambio(){
-  try{
-    const res = await fetch('/api/tipo-cambio');
-    const data = await res.json();
-    document.getElementById('estadoTC').textContent = data.fecha
-      ? `Dólar observado hoy (${data.fecha}): $${data.valor} CLP`
-      : `Tipo de cambio de respaldo: $${data.valor} CLP`;
-  }catch(e){
-    console.error(e);
-    document.getElementById('estadoTC').textContent = '';
-  }
-}
+        // ===== INICIALIZACIÓN =====
+        document.addEventListener('DOMContentLoaded', async () => {
+            await cargarTipoCambio();
+            await cargarProductos();
+            actualizarContadorCarrito();
+            configurarFiltros();
+            configurarCategorias();
+            configurarCarrito();
+        });
 
-// ---------- carga del catálogo (ya parseado por el servidor) ----------
-async function cargarCatalogo(){
-  const avisosEl = document.getElementById('avisos');
-  try{
-    const res = await fetch('/api/productos');
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-    productos = data.productos || [];
-    (data.avisos || []).forEach(msg => {
-      avisosEl.innerHTML += `<div class="aviso error"><b>${msg}</b></div>`;
-    });
-  }catch(e){
-    console.error(e);
-    avisosEl.innerHTML += `<div class="aviso error"><b>No se pudo cargar el catálogo desde el servidor</b>${e.message || e}</div>`;
-  }
-  renderCatalogo();
-}
+        // ===== CARGA DE DATOS =====
+        async function cargarTipoCambio() {
+            try {
+                const res = await fetch('/api/tipo-cambio');
+                tipoCambio = await res.json();
+                document.getElementById('tc-valor').textContent = 
+                    `$${tipoCambio.valor.toLocaleString('es-CL')} (${tipoCambio.fecha || 'hoy'})`;
+            } catch (e) {
+                console.error('Error tipo de cambio:', e);
+                document.getElementById('tc-valor').textContent = 'No disponible';
+            }
+        }
 
-// ---------- render del catálogo ----------
-function escapeHtml(s){
-  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
+        async function cargarProductos() {
+            try {
+                const res = await fetch('/api/productos');
+                const data = await res.json();
+                productos = data.productos || [];
+                document.getElementById('loading-productos').style.display = 'none';
+                renderizarProductos(productos);
+                poblarFiltroCategorias();
+                renderizarCategorias();
+            } catch (e) {
+                console.error('Error productos:', e);
+                document.getElementById('loading-productos').innerHTML = 
+                    '<p style="color: var(--error);">Error al cargar el catálogo. Por favor, recarga la página.</p>';
+            }
+        }
 
-// el servidor ya calcula Neto/IVA/Total (con el margen y el factor de importación,
-// que nunca se envían al navegador) — acá solo se lee ese resultado
-function precioClpDe(producto){
-  return { neto: producto.neto, iva: producto.iva, total: producto.total };
-}
+        // ===== CATEGORÍAS (generadas desde los datos reales, nunca hardcodeadas) =====
+        // Cada categoría real se identifica por palabras clave; si aparece una
+        // categoría nueva que no reconocemos, usa un ícono genérico de respaldo
+        // en vez de romperse o quedar sin ícono.
+        const ICONOS_CATEGORIA = [
+            { match: /delantal/i, icon: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c-2 2-3 4-3 7v11a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2V9c0-3-1-5-3-7z"/><path d="M6 9H3a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h3M18 9h3a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-3"/></svg>' },
+            { match: /lentes|gafas|anteojos/i, icon: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="15" r="4"/><circle cx="18" cy="15" r="4"/><path d="M10 15h4M2 15l3-9h2M22 15l-3-9h-2"/></svg>' },
+            { match: /barrera/i, icon: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>' },
+            { match: /repisa|rack|soporte/i, icon: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="7" rx="1"/><rect x="3" y="14" width="18" height="7" rx="1"/><path d="M7 10v4M17 10v4"/></svg>' },
+            { match: /señal|sign/i, icon: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a1.5 1.5 0 0 0 1.3 2.3h17.8a1.5 1.5 0 0 0 1.3-2.3L13.7 3.9a1.5 1.5 0 0 0-2.6 0z"/><path d="M12 9v4M12 16.5h.01"/></svg>' },
+            { match: /nuclear/i, icon: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><path d="M12 2v6M12 16v6M4.2 7l5.2 3M14.6 14l5.2 3M4.2 17l5.2-3M14.6 10l5.2-3"/></svg>' },
+            { match: /bloquead/i, icon: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>' },
+            { match: /marcador/i, icon: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.59 3.24L3 3v6.59a2 2 0 0 0 .59 1.41l9.59 9.59a2 2 0 0 0 2.82 0l4.59-4.59a2 2 0 0 0 0-2.99z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>' },
+            { match: /protector|gonad|tiroide/i, icon: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>' },
+            { match: /gorro|hat/i, icon: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18a8 8 0 0 1 16 0"/><path d="M4 18h16v2H4z"/></svg>' },
+            { match: /manta|blanket/i, icon: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 11h18"/></svg>' },
+            { match: /accesorio/i, icon: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>' },
+            { match: /desechable|disposable/i, icon: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>' },
+        ];
+        const ICONO_GENERICO = '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M3 7l2-4h14l2 4"/></svg>';
 
-function slugSeccion(s){
-  return 'sec-' + String(s)
-    .toLowerCase()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // quita tildes
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
+        function iconoParaCategoria(nombre){
+            const encontrado = ICONOS_CATEGORIA.find(i => i.match.test(nombre));
+            return encontrado ? encontrado.icon : ICONO_GENERICO;
+        }
 
-function renderCatalogo(){
-  const cont = document.getElementById('catalogo');
-  const nav = document.getElementById('navCategorias');
-  const filtro = (document.getElementById('buscador').value || '').toLowerCase().trim();
+        function renderizarCategorias(){
+            const grid = document.getElementById('categorias-grid');
+            const conteo = {};
+            productos.forEach(p => {
+                if (!p.seccion) return;
+                conteo[p.seccion] = (conteo[p.seccion] || 0) + 1;
+            });
+            const categorias = Object.keys(conteo).sort();
 
-  const filtrados = productos.filter(p => {
-    if (!filtro) return true;
-    return (p.sku + ' ' + p.modelo + ' ' + p.descripcion).toLowerCase().includes(filtro);
-  });
+            if (categorias.length === 0){
+                grid.innerHTML = '<p style="text-align:center;color:var(--gris-suave);">No hay categorías disponibles.</p>';
+                return;
+            }
 
-  if (!filtrados.length){
-    cont.innerHTML = '<p style="color:var(--ink-soft);">No se encontraron productos.</p>';
-    nav.innerHTML = '';
-    return;
-  }
+            grid.innerHTML = categorias.map(nombre => `
+                <div class="categoria-card" data-categoria="${nombre.replace(/"/g, '&quot;')}">
+                    <div class="categoria-icon">${iconoParaCategoria(nombre)}</div>
+                    <h3>${nombre}</h3>
+                    <p>${conteo[nombre]} producto${conteo[nombre] !== 1 ? 's' : ''}</p>
+                </div>
+            `).join('');
+        }
 
-  const porSeccion = {};
-  filtrados.forEach(p => {
-    if (!porSeccion[p.seccion]) porSeccion[p.seccion] = [];
-    porSeccion[p.seccion].push(p);
-  });
+        // ===== RENDERIZADO =====
+        function renderizarProductos(lista) {
+            const grid = document.getElementById('productos-grid');
+            if (lista.length === 0) {
+                grid.innerHTML = '<p style="text-align: center; padding: 3rem; color: var(--gris-suave); grid-column: 1/-1;">No se encontraron productos con los filtros seleccionados.</p>';
+                return;
+            }
+            grid.innerHTML = lista.map(p => {
+                const enCarrito = carrito.find(i => i.sku === p.sku);
+                const fotoHtml = p.foto
+                    ? `<img src="${p.foto}" alt="${p.descripcion}" class="producto-imagen" onerror="this.parentElement.querySelector('.producto-imagen-wrap').innerHTML='<span class=&quot;sin-foto&quot;>Foto de referencia<br>próximamente</span>'">`
+                    : `<span class="sin-foto">Foto de referencia<br>próximamente</span>`;
+                return `
+                    <div class="producto-card">
+                        <div class="producto-imagen-wrap">${fotoHtml}</div>
+                        <div class="producto-info">
+                            <div class="producto-sku">SKU: ${p.sku}</div>
+                            <h3 class="producto-nombre">${p.descripcion}</h3>
+                            <div class="producto-especificaciones">
+                                ${p.material ? `<div><strong>Material:</strong> ${p.material}</div>` : ''}
+                                ${p.tela ? `<div><strong>Tela:</strong> ${p.tela}</div>` : ''}
+                                ${p.seccion ? `<div><strong>Categoría:</strong> ${p.seccion}</div>` : ''}
+                            </div>
+                            <div class="producto-badges">
+                                <span class="producto-badge">Phillips Safety USA</span>
+                            </div>
+                            <div class="producto-precio">
+                                $${p.total.toLocaleString('es-CL')}
+                                <small>IVA incluido</small>
+                            </div>
+                            <div class="producto-precio-neto">Neto: $${p.neto.toLocaleString('es-CL')}</div>
+                            <button class="btn-agregar ${enCarrito ? 'agregado' : ''}" 
+                                    onclick="agregarAlCarrito('${p.sku}', this)">
+                                ${enCarrito ? '✓ En cotización' : 'Agregar a cotización'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
 
-  // ---------- selector de categorías (arriba) ----------
-  nav.innerHTML = Object.keys(porSeccion).map(seccion => {
-    const id = slugSeccion(seccion);
-    return `<button class="chip" onclick="irASeccion('${id}')">${escapeHtml(seccion)} <span class="cant">(${porSeccion[seccion].length})</span></button>`;
-  }).join('');
+        function poblarFiltroCategorias() {
+            const cats = [...new Set(productos.map(p => p.seccion).filter(Boolean))].sort();
+            const select = document.getElementById('filtro-categoria');
+            cats.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c;
+                opt.textContent = c;
+                select.appendChild(opt);
+            });
+        }
 
-  let html = '';
-  Object.keys(porSeccion).forEach(seccion => {
-    html += `<div class="seccionTitulo" id="${slugSeccion(seccion)}">${escapeHtml(seccion)}</div><div class="grid">`;
-    porSeccion[seccion].forEach(p => {
-      const precios = precioClpDe(p);
-      const etiquetas = [p.material, p.tela].filter(Boolean);
-      const etiquetasHtml = etiquetas.length
-        ? `<div class="etiquetas">${etiquetas.map(e => `<span class="etiqueta">${escapeHtml(e)}</span>`).join('')}</div>`
-        : '';
-      const fotoHtml = p.foto
-        ? `<div class="fotoWrap"><img src="${escapeHtml(p.foto)}" alt="${escapeHtml(p.modelo || p.sku)}" loading="lazy" onerror="this.parentElement.innerHTML='<span class=&quot;sinFoto&quot;>Foto no disponible</span>'"></div>`
-        : `<div class="fotoWrap"><span class="sinFoto">Foto de referencia<br>próximamente</span></div>`;
-      html += `
-        <div class="prodCard">
-          ${fotoHtml}
-          <div class="sku">${escapeHtml(p.sku)}</div>
-          <div class="nombre">${escapeHtml(p.modelo || p.sku)}</div>
-          ${etiquetasHtml}
-          <div class="desc">${escapeHtml(p.descripcion)}</div>
-          <div class="precio">
-            <div class="filaPrecio"><span>Valor Neto</span><b>$${precios.neto.toLocaleString('es-CL')}</b></div>
-            <div class="filaPrecio sec"><span>IVA (19%)</span><span>$${precios.iva.toLocaleString('es-CL')}</span></div>
-            <div class="filaPrecio total"><span>Total</span><b>$${precios.total.toLocaleString('es-CL')}</b></div>
-          </div>
-          <div class="agregarRow">
-            <input type="number" min="1" value="1" class="cantInput" data-sku="${escapeHtml(p.sku)}">
-            <button onclick="agregarAlCarrito('${escapeHtml(p.sku).replace(/'/g, "\\'")}')">Agregar</button>
-          </div>
-          <div class="nota-personalizacion">Con tu solicitud de cotización te enviaremos las distintas posibilidades de personalización disponibles (material, tela, color, logo, bordado, etc.).</div>
-        </div>`;
-    });
-    html += `</div>`;
-  });
-  cont.innerHTML = html;
-}
+        // ===== FILTROS =====
+        function configurarFiltros() {
+            ['filtro-categoria', 'filtro-material', 'filtro-pb'].forEach(id => {
+                document.getElementById(id).addEventListener('change', aplicarFiltros);
+            });
+            document.getElementById('buscar-producto').addEventListener('input', aplicarFiltros);
+        }
 
-document.getElementById('buscador').addEventListener('input', renderCatalogo);
+        function aplicarFiltros() {
+            const cat = document.getElementById('filtro-categoria').value;
+            const mat = document.getElementById('filtro-material').value;
+            const pb = document.getElementById('filtro-pb').value;
+            const busq = document.getElementById('buscar-producto').value.toLowerCase();
 
-// ---------- carrito ----------
-function agregarAlCarrito(sku){
-  const producto = productos.find(p => p.sku === sku);
-  if (!producto) return;
-  const inputCant = document.querySelector(`.cantInput[data-sku="${CSS.escape(sku)}"]`);
-  const cantidad = Math.max(1, parseInt(inputCant?.value) || 1);
-  const precios = precioClpDe(producto);
+            let f = productos;
+            if (cat) f = f.filter(p => p.seccion === cat);
+            if (mat) f = f.filter(p => p.material && p.material.toLowerCase().includes(mat.toLowerCase()));
+            if (pb) f = f.filter(p => p.descripcion && p.descripcion.includes(pb));
+            if (busq) f = f.filter(p => 
+                p.sku.toLowerCase().includes(busq) || 
+                p.descripcion.toLowerCase().includes(busq)
+            );
+            renderizarProductos(f);
+        }
 
-  const existente = carrito.find(i => i.sku === sku);
-  if (existente){
-    existente.cantidad += cantidad;
-  } else {
-    carrito.push({ sku, nombre: producto.modelo || producto.sku, neto: precios.neto, iva: precios.iva, total: precios.total, cantidad });
-  }
-  actualizarContadorCarrito();
-}
+        function configurarCategorias() {
+            // Delegación de eventos: las tarjetas se generan dinámicamente
+            // después de cargar los productos, así que el listener va en el
+            // contenedor padre (que sí existe desde el inicio).
+            document.getElementById('categorias-grid').addEventListener('click', (e) => {
+                const card = e.target.closest('.categoria-card');
+                if (!card) return;
+                const cat = card.dataset.categoria;
+                document.getElementById('filtro-categoria').value = cat;
+                aplicarFiltros();
+                document.getElementById('productos').scrollIntoView({ behavior: 'smooth' });
+            });
+        }
 
-function actualizarContadorCarrito(){
-  const total = carrito.reduce((s, i) => s + i.cantidad, 0);
-  document.getElementById('cantCarrito').textContent = total;
-}
+        // ===== CARRITO =====
+        function configurarCarrito() {
+            document.getElementById('btn-carrito').addEventListener('click', (e) => {
+                e.preventDefault();
+                if (carrito.length === 0) {
+                    alert('Tu carrito está vacío. Agrega productos antes de cotizar.');
+                    return;
+                }
+                abrirModalCotizacion();
+            });
+        }
 
-function abrirCarrito(){
-  renderCarrito();
-  document.getElementById('modalCarrito').classList.add('open');
-}
-function cerrarCarrito(){
-  document.getElementById('modalCarrito').classList.remove('open');
-}
+        function agregarAlCarrito(sku, btn) {
+            const prod = productos.find(p => p.sku === sku);
+            if (!prod) return;
+            const existe = carrito.find(i => i.sku === sku);
+            if (existe) {
+                existe.cantidad++;
+            } else {
+                carrito.push({
+                    sku: prod.sku,
+                    descripcion: prod.descripcion,
+                    neto: prod.neto,
+                    total: prod.total,
+                    cantidad: 1
+                });
+            }
+            localStorage.setItem('carrito_quantical', JSON.stringify(carrito));
+            actualizarContadorCarrito();
+            renderizarProductos(productosFiltradosActuales());
+            mostrarNotificacion('✓ Producto agregado a la cotización');
+            if (btn) {
+                btn.textContent = '✓ En cotización';
+                btn.classList.add('agregado');
+            }
+        }
 
-function renderCarrito(){
-  const tbody = document.getElementById('tbodyCarrito');
-  tbody.innerHTML = carrito.map((item, idx) => `
-    <tr>
-      <td>${escapeHtml(item.nombre)}</td>
-      <td><input class="cantEdit" type="number" min="1" value="${item.cantidad}" data-idx="${idx}"></td>
-      <td>$${item.neto.toLocaleString('es-CL')}</td>
-      <td>$${(item.total * item.cantidad).toLocaleString('es-CL')}</td>
-      <td><button class="quitarBtn" data-idx="${idx}">Quitar</button></td>
-    </tr>`).join('') || '<tr><td colspan="5" style="color:var(--ink-soft);">Tu cotización está vacía.</td></tr>';
+        function productosFiltradosActuales() {
+            // Re-aplica filtros actuales para mantener estado visual
+            const cat = document.getElementById('filtro-categoria').value;
+            const mat = document.getElementById('filtro-material').value;
+            const pb = document.getElementById('filtro-pb').value;
+            const busq = document.getElementById('buscar-producto').value.toLowerCase();
+            let f = productos;
+            if (cat) f = f.filter(p => p.seccion === cat);
+            if (mat) f = f.filter(p => p.material && p.material.toLowerCase().includes(mat.toLowerCase()));
+            if (pb) f = f.filter(p => p.descripcion && p.descripcion.includes(pb));
+            if (busq) f = f.filter(p => p.sku.toLowerCase().includes(busq) || p.descripcion.toLowerCase().includes(busq));
+            return f;
+        }
 
-  tbody.querySelectorAll('.cantEdit').forEach(inp => {
-    inp.addEventListener('input', () => {
-      carrito[+inp.dataset.idx].cantidad = Math.max(1, parseInt(inp.value) || 1);
-      renderCarrito();
-      actualizarContadorCarrito();
-    });
-  });
-  tbody.querySelectorAll('.quitarBtn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      carrito.splice(+btn.dataset.idx, 1);
-      renderCarrito();
-      actualizarContadorCarrito();
-    });
-  });
+        function actualizarContadorCarrito() {
+            const total = carrito.reduce((s, i) => s + i.cantidad, 0);
+            document.getElementById('contador-carrito').textContent = total;
+        }
 
-  const totalNeto = carrito.reduce((s, i) => s + i.neto * i.cantidad, 0);
-  const totalIva = carrito.reduce((s, i) => s + i.iva * i.cantidad, 0);
-  const totalGeneral = carrito.reduce((s, i) => s + i.total * i.cantidad, 0);
-  document.getElementById('totalCarrito').innerHTML =
-    `Neto: $${totalNeto.toLocaleString('es-CL')} &nbsp;·&nbsp; IVA: $${totalIva.toLocaleString('es-CL')} &nbsp;·&nbsp; <b>Total: $${totalGeneral.toLocaleString('es-CL')}</b>`;
-}
+        function mostrarNotificacion(msg) {
+            const n = document.createElement('div');
+            n.className = 'notificacion';
+            n.textContent = msg;
+            document.body.appendChild(n);
+            setTimeout(() => n.remove(), 3000);
+        }
 
-async function confirmarPedido(){
-  if (!carrito.length){ alert('Tu cotización está vacía.'); return; }
-  const nombre = document.getElementById('clienteNombre').value.trim();
-  const email = document.getElementById('clienteEmail').value.trim();
-  if (!nombre || !email){ alert('Completa al menos tu nombre y correo.'); return; }
+        // ===== MODAL COTIZACIÓN =====
+        function abrirModalCotizacion() {
+            const itemsDiv = document.getElementById('resumen-items');
+            itemsDiv.innerHTML = carrito.map(i => `
+                <div class="resumen-item">
+                    <span>${i.cantidad}× ${i.descripcion.substring(0, 40)}${i.descripcion.length > 40 ? '...' : ''}</span>
+                    <span>$${(i.total * i.cantidad).toLocaleString('es-CL')}</span>
+                </div>
+            `).join('');
+            const total = carrito.reduce((s, i) => s + i.total * i.cantidad, 0);
+            document.getElementById('resumen-total').textContent = 
+                `Total: $${total.toLocaleString('es-CL')} (IVA incluido)`;
+            document.getElementById('modal-cotizacion').style.display = 'flex';
+            document.getElementById('input-nombre').focus();
+            document.body.style.overflow = 'hidden';
+        }
 
-  const empresa = document.getElementById('clienteEmpresa').value.trim();
-  const telefono = document.getElementById('clienteTelefono').value.trim();
-  const comentarios = document.getElementById('clienteComentarios').value.trim();
+        function cerrarModalCotizacion() {
+            document.getElementById('modal-cotizacion').style.display = 'none';
+            document.getElementById('form-cotizacion').reset();
+            document.querySelectorAll('.error-msg').forEach(e => e.textContent = '');
+            document.querySelectorAll('input.invalid').forEach(e => e.classList.remove('invalid'));
+            document.body.style.overflow = '';
+        }
 
-  const totalGeneral = carrito.reduce((s, i) => s + i.total * i.cantidad, 0);
+        function validarEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
 
-  const items = carrito.map(i => ({
-    sku: i.sku,
-    nombre: i.nombre,
-    cantidad: i.cantidad,
-    netoUnitario: i.neto,
-    subtotalConIva: i.total * i.cantidad
-  }));
+        document.getElementById('form-cotizacion').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            document.querySelectorAll('.error-msg').forEach(el => el.textContent = '');
+            document.querySelectorAll('input.invalid').forEach(el => el.classList.remove('invalid'));
 
-  const btn = document.getElementById('btnConfirmarPedido');
-  const textoOriginal = btn ? btn.textContent : '';
-  if (btn){ btn.disabled = true; btn.textContent = 'Enviando…'; }
+            const nombre = document.getElementById('input-nombre').value.trim();
+            const email = document.getElementById('input-email').value.trim();
+            const telefono = document.getElementById('input-telefono').value.trim();
+            const empresa = document.getElementById('input-empresa').value.trim();
+            const comentarios = document.getElementById('input-comentarios').value.trim();
 
-  try{
-    const res = await fetch('/api/enviar-cotizacion', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        cliente: { nombre, empresa, email, telefono, comentarios },
-        items,
-        total: totalGeneral
-      })
-    });
-    const data = await res.json();
-    if (!res.ok || !data.ok) throw new Error(data.error || 'Error desconocido');
+            let valido = true;
+            if (!nombre) {
+                document.getElementById('error-nombre').textContent = 'El nombre es obligatorio';
+                document.getElementById('input-nombre').classList.add('invalid');
+                valido = false;
+            }
+            if (!email) {
+                document.getElementById('error-email').textContent = 'El email es obligatorio';
+                document.getElementById('input-email').classList.add('invalid');
+                valido = false;
+            } else if (!validarEmail(email)) {
+                document.getElementById('error-email').textContent = 'Ingresa un email válido';
+                document.getElementById('input-email').classList.add('invalid');
+                valido = false;
+            }
+            if (!valido) return;
 
-    alert('¡Listo! Tu solicitud de cotización fue enviada correctamente.');
-    carrito = [];
-    actualizarContadorCarrito();
-    cerrarCarrito();
-  }catch(e){
-    alert('No se pudo enviar la cotización. Intenta de nuevo en unos minutos, o contáctanos directamente.\n\n(Detalle técnico: ' + e.message + ')');
-  }finally{
-    if (btn){ btn.disabled = false; btn.textContent = textoOriginal; }
-  }
-}
+            const items = carrito.map(i => ({
+                sku: i.sku,
+                nombre: i.descripcion,
+                cantidad: i.cantidad,
+                netoUnitario: i.neto,
+                subtotalConIva: i.total * i.cantidad
+            }));
+            const total = items.reduce((s, i) => s + i.subtotalConIva, 0);
 
-// ---------- init ----------
-// Refresco automático de precios/tipo de cambio cada 24 horas (sin botón manual).
-// Usa /api/productos normal (no /refrescar) — el servidor igual mantiene su propia
-// caché de 15 minutos, así que esto simplemente vuelve a pedir los datos ya frescos.
-const VEINTICUATRO_HORAS_MS = 24 * 60 * 60 * 1000;
-setInterval(async () => {
-  try {
-    await cargarTipoCambio();
-    await cargarCatalogo();
-  } catch (e) {
-    console.error('Error en refresco automático:', e);
-  }
-}, VEINTICUATRO_HORAS_MS);
+            const btn = document.getElementById('btn-enviar-cotizacion');
+            const txtOrig = btn.textContent;
+            btn.textContent = 'Enviando...';
+            btn.disabled = true;
 
-// ---------- navegación por categorías ----------
-function irASeccion(id){
-  const el = document.getElementById(id);
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
+            try {
+                const res = await fetch('/api/enviar-cotizacion', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        cliente: { nombre, email, telefono, empresa, comentarios },
+                        items,
+                        total
+                    })
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    cerrarModalCotizacion();
+                    alert('✅ Cotización enviada correctamente. Un ejecutivo de Quantical se contactará contigo en las próximas 24 horas hábiles.');
+                    carrito = [];
+                    localStorage.removeItem('carrito_quantical');
+                    actualizarContadorCarrito();
+                    renderizarProductos(productosFiltradosActuales());
+                } else {
+                    throw new Error(data.error || 'Error desconocido');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                alert(' Error al enviar: ' + err.message + '. Por favor, intenta nuevamente o llámanos al +56 2 2604 6512.');
+                btn.textContent = txtOrig;
+                btn.disabled = false;
+            }
+        });
 
-function volverArriba(){
-  document.getElementById('navCategorias').scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && document.getElementById('modal-cotizacion').style.display === 'flex') {
+                cerrarModalCotizacion();
+            }
+        });
 
-window.addEventListener('scroll', () => {
-  const nav = document.getElementById('navCategorias');
-  const btn = document.getElementById('btnVolver');
-  if (!nav || !btn) return;
-  const navBottom = nav.getBoundingClientRect().bottom;
-  if (navBottom < 0) btn.classList.add('visible');
-  else btn.classList.remove('visible');
-});
-
-cargarTipoCambio();
-cargarCatalogo();
-</script>
+        document.getElementById('modal-cotizacion').addEventListener('click', function(e) {
+            if (e.target === this) cerrarModalCotizacion();
+        });
+    </script>
 </body>
 </html>
