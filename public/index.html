@@ -934,6 +934,18 @@
 
     <script>
         // ===== ESTADO GLOBAL =====
+        // Escapa HTML para evitar XSS al insertar contenido que viene de la
+        // planilla (nombre de categoría, descripción, etc.) o de datos del carrito.
+        function escapeHtml(valor){
+            if (valor === null || valor === undefined) return '';
+            return String(valor)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
         let productos = [];
         let carrito = JSON.parse(localStorage.getItem('carrito_quantical') || '[]');
         let tipoCambio = null;
@@ -1021,7 +1033,7 @@
             grid.innerHTML = categorias.map(nombre => `
                 <div class="categoria-card ${nombre === categoriaActiva ? 'activa' : ''}" data-categoria="${nombre.replace(/"/g, '&quot;')}">
                     <span class="categoria-icon">${iconoParaCategoria(nombre)}</span>
-                    <h3>${nombre} (${conteo[nombre]})</h3>
+                    <h3>${escapeHtml(nombre)} (${conteo[nombre]})</h3>
                 </div>
             `).join('');
         }
@@ -1036,18 +1048,18 @@
             grid.innerHTML = lista.map(p => {
                 const enCarrito = carrito.find(i => i.sku === p.sku);
                 const fotoHtml = p.foto
-                    ? `<img src="${p.foto}" alt="${p.descripcion}" class="producto-imagen" onerror="this.parentElement.querySelector('.producto-imagen-wrap').innerHTML='<span class=&quot;sin-foto&quot;>Foto de referencia<br>próximamente</span>'">`
+                    ? `<img src="${escapeHtml(p.foto)}" alt="${escapeHtml(p.descripcion)}" class="producto-imagen" onerror="this.parentElement.querySelector('.producto-imagen-wrap').innerHTML='<span class=&quot;sin-foto&quot;>Foto de referencia<br>próximamente</span>'">`
                     : `<span class="sin-foto">Foto de referencia<br>próximamente</span>`;
                 return `
                     <div class="producto-card">
                         <div class="producto-imagen-wrap">${fotoHtml}</div>
                         <div class="producto-info">
-                            <div class="producto-sku">SKU: ${p.sku}</div>
-                            <h3 class="producto-nombre">${p.descripcion}</h3>
+                            <div class="producto-sku">SKU: ${escapeHtml(p.sku)}</div>
+                            <h3 class="producto-nombre">${escapeHtml(p.descripcion)}</h3>
                             <div class="producto-especificaciones">
-                                ${p.material ? `<div><strong>Material:</strong> ${p.material}</div>` : ''}
-                                ${p.tela ? `<div><strong>Tela:</strong> ${p.tela}</div>` : ''}
-                                ${p.seccion ? `<div><strong>Categoría:</strong> ${p.seccion}</div>` : ''}
+                                ${p.material ? `<div><strong>Material:</strong> ${escapeHtml(p.material)}</div>` : ''}
+                                ${p.tela ? `<div><strong>Tela:</strong> ${escapeHtml(p.tela)}</div>` : ''}
+                                ${p.seccion ? `<div><strong>Categoría:</strong> ${escapeHtml(p.seccion)}</div>` : ''}
                             </div>
                             <div class="producto-badges">
                                 <span class="producto-badge">Phillips Safety USA</span>
@@ -1058,7 +1070,7 @@
                             </div>
                             <div class="producto-precio-neto">Neto: $${p.neto.toLocaleString('es-CL')}</div>
                             <button class="btn-agregar ${enCarrito ? 'agregado' : ''}" 
-                                    onclick="agregarAlCarrito('${p.sku}', this)">
+                                    onclick="agregarAlCarrito('${p.sku.replace(/'/g, "\\'")}', this)">
                                 ${enCarrito ? '✓ En cotización' : 'Agregar a cotización'}
                             </button>
                         </div>
@@ -1164,7 +1176,7 @@
             const itemsDiv = document.getElementById('resumen-items');
             itemsDiv.innerHTML = carrito.map(i => `
                 <div class="resumen-item">
-                    <span>${i.cantidad}× ${i.descripcion.substring(0, 40)}${i.descripcion.length > 40 ? '...' : ''}</span>
+                    <span>${i.cantidad}× ${escapeHtml(i.descripcion.substring(0, 40))}${i.descripcion.length > 40 ? '...' : ''}</span>
                     <span>$${(i.total * i.cantidad).toLocaleString('es-CL')}</span>
                 </div>
             `).join('');

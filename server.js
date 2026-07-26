@@ -13,9 +13,27 @@
 
 const express = require('express');
 const Papa = require('papaparse');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 
 const app = express();
+
+// Cabeceras de seguridad (oculta X-Powered-By, agrega CSP/X-Frame-Options/etc.)
+app.disable('x-powered-by');
+app.use(helmet({
+  contentSecurityPolicy: false // el HTML usa estilos/scripts inline; se deja sin CSP estricta por ahora
+}));
+
 app.use(express.json({ limit: '2mb' }));
+
+// Límite de peticiones para el endpoint de cotización (evita spam / abuso del cupo de Resend)
+const limiteCotizacion = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 8, // máx. 8 solicitudes de cotización por IP cada 15 min
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Demasiadas solicitudes. Intenta de nuevo en unos minutos.' }
+});
 const PORT = process.env.PORT || 3000;
 
 // ---------- configuración de la planilla ----------
@@ -541,7 +559,8 @@ app.get('/api/productos', async (req, res) => {
     });
     res.json({ productos: productosConPrecio, avisos });
   }catch(e){
-    res.status(500).json({ error: e.message });
+    console.error('Error en /api/productos:', e);
+    res.status(500).json({ error: 'No se pudo cargar el catálogo. Intenta de nuevo en unos minutos.' });
   }
 });
 
@@ -550,7 +569,8 @@ app.get('/api/tipo-cambio', async (req, res) => {
     const tc = await cargarTipoCambio();
     res.json(tc);
   }catch(e){
-    res.status(500).json({ error: e.message });
+    console.error('Error en /api/tipo-cambio:', e);
+    res.status(500).json({ error: 'No se pudo obtener el tipo de cambio.' });
   }
 });
 
@@ -567,7 +587,8 @@ app.post('/api/productos/refrescar', async (req, res) => {
     });
     res.json({ productos: productosConPrecio, avisos, refrescado: true });
   }catch(e){
-    res.status(500).json({ error: e.message });
+    console.error('Error en /api/productos/refrescar:', e);
+    res.status(500).json({ error: 'No se pudo refrescar el catálogo. Intenta de nuevo en unos minutos.' });
   }
 });
 
@@ -576,8 +597,24 @@ const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const RESEND_REMITENTE = process.env.RESEND_REMITENTE || 'onboarding@resend.dev';
 const RESEND_DESTINATARIO = process.env.RESEND_DESTINATARIO || 'rubilar.andres@outlook.com';
 
+// Escapa HTML para insertarlo de forma segura en el correo (evita que el
+// nombre/comentarios de quien cotiza inyecten HTML/script en el email).
+function escapeHtml(valor){
+  if (valor === null || valor === undefined) return '';
+  return String(valor)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 function csvEscape(valor){
-  const s = String(valor ?? '');
+  let s = String(valor ?? '');
+  // Neutraliza inyección de fórmulas de Excel/Sheets: si el valor empieza con
+  // = + - @ (o tab/CR), Excel podría interpretarlo como fórmula al abrir el
+  // archivo. Se antepone un apóstrofe para forzar que se lea como texto plano.
+  if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
   if (/[",\n;]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
   return s;
 }
@@ -594,9 +631,9 @@ function generarCsvCotizacion(items){
 function generarHtmlCotizacion({ cliente, items, total }){
   const filasHtml = items.map(it => `
     <tr>
-      <td style="padding:6px 10px;border-bottom:1px solid #eee;">${it.sku}</td>
-      <td style="padding:6px 10px;border-bottom:1px solid #eee;">${it.nombre}</td>
-      <td style="padding:6px 10px;border-bottom:1px solid #eee;text-align:center;">${it.cantidad}</td>
+      <td style="padding:6px 10px;border-bottom:1px solid #eee;">${escapeHtml(it.sku)}</td>
+      <td style="padding:6px 10px;border-bottom:1px solid #eee;">${escapeHtml(it.nombre)}</td>
+      <td style="padding:6px 10px;border-bottom:1px solid #eee;text-align:center;">${Number(it.cantidad) || 0}</td>
       <td style="padding:6px 10px;border-bottom:1px solid #eee;text-align:right;">$${Number(it.netoUnitario).toLocaleString('es-CL')}</td>
       <td style="padding:6px 10px;border-bottom:1px solid #eee;text-align:right;">$${Number(it.subtotalConIva).toLocaleString('es-CL')}</td>
     </tr>
@@ -609,12 +646,12 @@ function generarHtmlCotizacion({ cliente, items, total }){
 
       <h3>Datos del solicitante</h3>
       <table style="font-size:14px;">
-        <tr><td style="padding:2px 8px 2px 0;color:#5a6b73;">Nombre:</td><td><b>${cliente.nombre || '—'}</b></td></tr>
-        <tr><td style="padding:2px 8px 2px 0;color:#5a6b73;">Empresa:</td><td>${cliente.empresa || '—'}</td></tr>
-        <tr><td style="padding:2px 8px 2px 0;color:#5a6b73;">Email:</td><td>${cliente.email || '—'}</td></tr>
-        <tr><td style="padding:2px 8px 2px 0;color:#5a6b73;">Teléfono:</td><td>${cliente.telefono || '—'}</td></tr>
+        <tr><td style="padding:2px 8px 2px 0;color:#5a6b73;">Nombre:</td><td><b>${escapeHtml(cliente.nombre) || '—'}</b></td></tr>
+        <tr><td style="padding:2px 8px 2px 0;color:#5a6b73;">Empresa:</td><td>${escapeHtml(cliente.empresa) || '—'}</td></tr>
+        <tr><td style="padding:2px 8px 2px 0;color:#5a6b73;">Email:</td><td>${escapeHtml(cliente.email) || '—'}</td></tr>
+        <tr><td style="padding:2px 8px 2px 0;color:#5a6b73;">Teléfono:</td><td>${escapeHtml(cliente.telefono) || '—'}</td></tr>
       </table>
-      ${cliente.comentarios ? `<p><b>Comentarios:</b> ${cliente.comentarios}</p>` : ''}
+      ${cliente.comentarios ? `<p><b>Comentarios:</b> ${escapeHtml(cliente.comentarios)}</p>` : ''}
 
       <h3>Productos solicitados</h3>
       <table style="width:100%;border-collapse:collapse;font-size:13.5px;">
@@ -636,24 +673,78 @@ function generarHtmlCotizacion({ cliente, items, total }){
   `;
 }
 
-app.post('/api/enviar-cotizacion', async (req, res) => {
+// Quita saltos de línea y caracteres de control: evita inyección de
+// cabeceras de correo (CRLF injection) si alguien manda "\n" en nombre/empresa.
+function sanearLinea(valor, maxLen = 200){
+  return String(valor ?? '').replace(/[\r\n\t]/g, ' ').trim().slice(0, maxLen);
+}
+
+const REGEX_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+app.post('/api/enviar-cotizacion', limiteCotizacion, async (req, res) => {
   try{
     if (!RESEND_API_KEY){
-      return res.status(500).json({ error: 'Falta configurar RESEND_API_KEY en el servidor' });
+      console.error('Falta RESEND_API_KEY en el entorno del servidor');
+      return res.status(500).json({ error: 'No se pudo enviar la cotización. Intenta más tarde.' });
     }
 
     const { cliente, items, total } = req.body || {};
 
-    if (!cliente || !cliente.nombre || !cliente.email){
+    if (!cliente || !sanearLinea(cliente.nombre) || !sanearLinea(cliente.email)){
       return res.status(400).json({ error: 'Faltan datos del solicitante (nombre y email son obligatorios)' });
+    }
+    if (!REGEX_EMAIL.test(String(cliente.email).trim())){
+      return res.status(400).json({ error: 'El email no tiene un formato válido' });
     }
     if (!Array.isArray(items) || items.length === 0){
       return res.status(400).json({ error: 'El carrito de cotización está vacío' });
     }
+    if (items.length > 200){
+      return res.status(400).json({ error: 'Demasiados productos en una sola cotización' });
+    }
 
-    const csv = generarCsvCotizacion(items);
+    // ---- Validar cada ítem contra el catálogo REAL del servidor ----
+    // No confiamos en el nombre/precio que mande el navegador: solo el SKU.
+    // Así evitamos que alguien invente productos o manipule precios llamando
+    // directo a este endpoint (sin pasar por el catálogo).
+    const { datos: catalogo } = await cargarProductos();
+    const tc = await cargarTipoCambio();
+    const catalogoPorSku = new Map(catalogo.map(p => [p.sku, p]));
+
+    const itemsValidados = [];
+    for (const item of items){
+      const prod = catalogoPorSku.get(String(item?.sku || ''));
+      if (!prod) continue; // SKU no reconocido: se descarta silenciosamente
+      const cantidad = Math.min(Math.max(parseInt(item.cantidad, 10) || 1, 1), 9999);
+      const precios = calcularPrecio(prod.precioUsd, tc.valor);
+      itemsValidados.push({
+        sku: prod.sku,
+        nombre: prod.modelo || prod.descripcion || prod.sku,
+        cantidad,
+        netoUnitario: precios.neto,
+        subtotalConIva: precios.total * cantidad
+      });
+    }
+
+    if (itemsValidados.length === 0){
+      return res.status(400).json({ error: 'Ninguno de los productos enviados es válido' });
+    }
+
+    const totalValidado = itemsValidados.reduce((s, i) => s + i.subtotalConIva, 0);
+
+    const clienteSaneado = {
+      nombre: sanearLinea(cliente.nombre, 120),
+      empresa: sanearLinea(cliente.empresa, 120),
+      email: sanearLinea(cliente.email, 200),
+      telefono: sanearLinea(cliente.telefono, 60),
+      comentarios: sanearLinea(cliente.comentarios, 1000)
+    };
+
+    const csv = generarCsvCotizacion(itemsValidados);
     const csvBase64 = Buffer.from(csv, 'utf8').toString('base64');
-    const html = generarHtmlCotizacion({ cliente, items, total });
+    const html = generarHtmlCotizacion({ cliente: clienteSaneado, items: itemsValidados, total: totalValidado });
+
+    const asunto = `Cotización catálogo Phillips — ${clienteSaneado.nombre}${clienteSaneado.empresa ? ' (' + clienteSaneado.empresa + ')' : ''}`;
 
     const resendRes = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -664,8 +755,8 @@ app.post('/api/enviar-cotizacion', async (req, res) => {
       body: JSON.stringify({
         from: RESEND_REMITENTE,
         to: [RESEND_DESTINATARIO],
-        reply_to: cliente.email,
-        subject: `Cotización catálogo Phillips — ${cliente.nombre}${cliente.empresa ? ' (' + cliente.empresa + ')' : ''}`,
+        reply_to: clienteSaneado.email,
+        subject: asunto,
         html,
         attachments: [
           { filename: 'cotizacion.csv', content: csvBase64 }
@@ -675,12 +766,14 @@ app.post('/api/enviar-cotizacion', async (req, res) => {
 
     if (!resendRes.ok){
       const errText = await resendRes.text();
-      throw new Error(`Resend error ${resendRes.status}: ${errText}`);
+      console.error(`Resend error ${resendRes.status}: ${errText}`);
+      throw new Error('resend_failed');
     }
 
     res.json({ ok: true });
   }catch(e){
-    res.status(500).json({ error: e.message });
+    console.error('Error en /api/enviar-cotizacion:', e);
+    res.status(500).json({ error: 'No se pudo enviar la cotización. Intenta de nuevo en unos minutos.' });
   }
 });
 
