@@ -218,39 +218,72 @@
         }
 
         /* ===== CATEGORÍAS ===== */
-        .categorias-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.5rem;
+        /* Barra de categorías: compacta, flotante (sticky bajo el header) */
+        .categorias-bar {
+            position: sticky;
+            top: 78px; /* debajo del header sticky */
+            z-index: 90;
+            background: rgba(245,247,250,0.92);
+            backdrop-filter: blur(6px);
+            border-bottom: 1px solid var(--borde);
+            padding: 10px 20px;
+        }
+
+        .categorias-bar-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            scrollbar-width: thin;
+            padding-bottom: 2px;
+        }
+
+        .categorias-cargando {
+            color: var(--gris-suave);
+            font-size: 0.85rem;
+            padding: 6px 4px;
         }
 
         .categoria-card {
+            display: flex;
+            align-items: center;
+            gap: 6px;
             background: white;
-            border-radius: 10px;
-            padding: 2rem 1.5rem;
-            text-align: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid var(--borde);
+            border-radius: 20px;
+            padding: 7px 14px;
+            white-space: nowrap;
+            flex-shrink: 0;
             cursor: pointer;
-            border-top: 4px solid var(--quantica);
+            transition: background 0.2s, border-color 0.2s, color 0.2s;
+            font-size: 0.85rem;
+            color: var(--gris-texto);
         }
 
         .categoria-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+            border-color: var(--quantica);
+            color: var(--quantica-dark);
         }
 
-        .categoria-icon { font-size: 3rem; margin-bottom: 1rem; }
+        .categoria-card.activa {
+            background: var(--quantica);
+            border-color: var(--quantica);
+            color: white;
+        }
+
+        .categoria-icon { font-size: 1em; display: flex; align-items: center; }
 
         .categoria-card h3 {
-            color: var(--phillips);
-            margin-bottom: 0.5rem;
-            font-size: 1.1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin: 0;
         }
 
         .categoria-card p {
-            color: var(--gris-suave);
-            font-size: 0.85rem;
+            font-size: 0.75rem;
+            opacity: 0.7;
+            margin: 0;
         }
 
         /* ===== FILTROS ===== */
@@ -778,16 +811,12 @@
         </div>
     </section>
 
-    <!-- CATEGORÍAS -->
-    <section class="seccion" id="categorias">
-        <h2 class="section-title">Nuestras Categorías</h2>
-        <div class="categorias-grid" id="categorias-grid">
-            <div class="loading" id="loading-categorias">
-                <div class="loading-spinner"></div>
-                <p>Cargando categorías…</p>
-            </div>
+    <!-- CATEGORÍAS (barra compacta y flotante) -->
+    <div class="categorias-bar" id="categorias-bar">
+        <div class="categorias-bar-inner" id="categorias-grid">
+            <span class="categorias-cargando" id="loading-categorias">Cargando categorías…</span>
         </div>
-    </section>
+    </div>
 
     <!-- PRODUCTOS -->
     <section class="seccion" id="productos">
@@ -795,32 +824,6 @@
 
         <div class="filtros-container">
             <div class="filtros-grid">
-                <div class="filtro-group">
-                    <label for="filtro-categoria">Categoría</label>
-                    <select id="filtro-categoria">
-                        <option value="">Todas las categorías</option>
-                    </select>
-                </div>
-                <div class="filtro-group">
-                    <label for="filtro-material">Material</label>
-                    <select id="filtro-material">
-                        <option value="">Todos los materiales</option>
-                        <option value="Axion">Axion Core</option>
-                        <option value="Plomo Liviano">Plomo Liviano</option>
-                        <option value="Lead Free">Lead Free</option>
-                        <option value="Nylon">Nylon</option>
-                        <option value="Ripstop">Ripstop</option>
-                    </select>
-                </div>
-                <div class="filtro-group">
-                    <label for="filtro-pb">Equivalencia Pb</label>
-                    <select id="filtro-pb">
-                        <option value="">Todas</option>
-                        <option value="0.25">0.25 mm Pb Eq</option>
-                        <option value="0.35">0.35 mm Pb Eq</option>
-                        <option value="0.50">0.50 mm Pb Eq</option>
-                    </select>
-                </div>
                 <div class="filtro-group">
                     <label for="buscar-producto">Buscar</label>
                     <input type="text" id="buscar-producto" placeholder="SKU o nombre del producto...">
@@ -964,7 +967,6 @@
                 productos = data.productos || [];
                 document.getElementById('loading-productos').style.display = 'none';
                 renderizarProductos(productos);
-                poblarFiltroCategorias();
                 renderizarCategorias();
             } catch (e) {
                 console.error('Error productos:', e);
@@ -999,6 +1001,8 @@
             return encontrado ? encontrado.icon : ICONO_GENERICO;
         }
 
+        let categoriaActiva = '';
+
         function renderizarCategorias(){
             const grid = document.getElementById('categorias-grid');
             const conteo = {};
@@ -1009,15 +1013,14 @@
             const categorias = Object.keys(conteo).sort();
 
             if (categorias.length === 0){
-                grid.innerHTML = '<p style="text-align:center;color:var(--gris-suave);">No hay categorías disponibles.</p>';
+                grid.innerHTML = '<span class="categorias-cargando">No hay categorías disponibles.</span>';
                 return;
             }
 
             grid.innerHTML = categorias.map(nombre => `
-                <div class="categoria-card" data-categoria="${nombre.replace(/"/g, '&quot;')}">
-                    <div class="categoria-icon">${iconoParaCategoria(nombre)}</div>
-                    <h3>${nombre}</h3>
-                    <p>${conteo[nombre]} producto${conteo[nombre] !== 1 ? 's' : ''}</p>
+                <div class="categoria-card ${nombre === categoriaActiva ? 'activa' : ''}" data-categoria="${nombre.replace(/"/g, '&quot;')}">
+                    <span class="categoria-icon">${iconoParaCategoria(nombre)}</span>
+                    <h3>${nombre} (${conteo[nombre]})</h3>
                 </div>
             `).join('');
         }
@@ -1063,35 +1066,16 @@
             }).join('');
         }
 
-        function poblarFiltroCategorias() {
-            const cats = [...new Set(productos.map(p => p.seccion).filter(Boolean))].sort();
-            const select = document.getElementById('filtro-categoria');
-            cats.forEach(c => {
-                const opt = document.createElement('option');
-                opt.value = c;
-                opt.textContent = c;
-                select.appendChild(opt);
-            });
-        }
-
         // ===== FILTROS =====
         function configurarFiltros() {
-            ['filtro-categoria', 'filtro-material', 'filtro-pb'].forEach(id => {
-                document.getElementById(id).addEventListener('change', aplicarFiltros);
-            });
             document.getElementById('buscar-producto').addEventListener('input', aplicarFiltros);
         }
 
         function aplicarFiltros() {
-            const cat = document.getElementById('filtro-categoria').value;
-            const mat = document.getElementById('filtro-material').value;
-            const pb = document.getElementById('filtro-pb').value;
             const busq = document.getElementById('buscar-producto').value.toLowerCase();
 
             let f = productos;
-            if (cat) f = f.filter(p => p.seccion === cat);
-            if (mat) f = f.filter(p => p.material && p.material.toLowerCase().includes(mat.toLowerCase()));
-            if (pb) f = f.filter(p => p.descripcion && p.descripcion.includes(pb));
+            if (categoriaActiva) f = f.filter(p => p.seccion === categoriaActiva);
             if (busq) f = f.filter(p => 
                 p.sku.toLowerCase().includes(busq) || 
                 p.descripcion.toLowerCase().includes(busq)
@@ -1107,7 +1091,9 @@
                 const card = e.target.closest('.categoria-card');
                 if (!card) return;
                 const cat = card.dataset.categoria;
-                document.getElementById('filtro-categoria').value = cat;
+                // Tocar la misma categoría activa la desactiva (muestra todo de nuevo)
+                categoriaActiva = (categoriaActiva === cat) ? '' : cat;
+                renderizarCategorias();
                 aplicarFiltros();
                 document.getElementById('productos').scrollIntoView({ behavior: 'smooth' });
             });
