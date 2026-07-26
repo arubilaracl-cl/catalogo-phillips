@@ -626,12 +626,31 @@
         .resumen-item {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             padding: 0.4rem 0;
             font-size: 0.85rem;
             border-bottom: 1px solid var(--borde);
+            gap: 10px;
         }
 
         .resumen-item:last-child { border-bottom: none; }
+
+        .resumen-item-info { flex: 1; min-width: 0; }
+
+        .resumen-item-precio { white-space: nowrap; }
+
+        .resumen-quitar {
+            background: none;
+            border: none;
+            color: var(--error);
+            font-size: 0.8rem;
+            cursor: pointer;
+            padding: 2px 6px;
+            white-space: nowrap;
+            text-decoration: underline;
+        }
+
+        .resumen-quitar:hover { opacity: 0.7; }
 
         .resumen-total {
             font-weight: bold;
@@ -1173,19 +1192,39 @@
 
         // ===== MODAL COTIZACIÓN =====
         function abrirModalCotizacion() {
-            const itemsDiv = document.getElementById('resumen-items');
-            itemsDiv.innerHTML = carrito.map(i => `
-                <div class="resumen-item">
-                    <span>${i.cantidad}× ${escapeHtml(i.descripcion.substring(0, 40))}${i.descripcion.length > 40 ? '...' : ''}</span>
-                    <span>$${(i.total * i.cantidad).toLocaleString('es-CL')}</span>
-                </div>
-            `).join('');
-            const total = carrito.reduce((s, i) => s + i.total * i.cantidad, 0);
-            document.getElementById('resumen-total').textContent = 
-                `Total: $${total.toLocaleString('es-CL')} (IVA incluido)`;
+            renderizarResumenCarrito();
             document.getElementById('modal-cotizacion').style.display = 'flex';
             document.getElementById('input-nombre').focus();
             document.body.style.overflow = 'hidden';
+        }
+
+        function renderizarResumenCarrito() {
+            const itemsDiv = document.getElementById('resumen-items');
+            itemsDiv.innerHTML = carrito.map(i => `
+                <div class="resumen-item">
+                    <span class="resumen-item-info">${i.cantidad}× ${escapeHtml(i.descripcion.substring(0, 40))}${i.descripcion.length > 40 ? '...' : ''}</span>
+                    <span class="resumen-item-precio">$${(i.total * i.cantidad).toLocaleString('es-CL')}</span>
+                    <button type="button" class="resumen-quitar" data-sku="${escapeHtml(i.sku)}" aria-label="Quitar producto">Quitar</button>
+                </div>
+            `).join('');
+            itemsDiv.querySelectorAll('.resumen-quitar').forEach(btn => {
+                btn.addEventListener('click', () => quitarDelCarrito(btn.dataset.sku));
+            });
+            const total = carrito.reduce((s, i) => s + i.total * i.cantidad, 0);
+            document.getElementById('resumen-total').textContent = 
+                `Total: $${total.toLocaleString('es-CL')} (IVA incluido)`;
+        }
+
+        function quitarDelCarrito(sku) {
+            carrito = carrito.filter(i => i.sku !== sku);
+            localStorage.setItem('carrito_quantical', JSON.stringify(carrito));
+            actualizarContadorCarrito();
+            renderizarProductos(productosFiltradosActuales());
+            if (carrito.length === 0) {
+                cerrarModalCotizacion();
+            } else {
+                renderizarResumenCarrito();
+            }
         }
 
         function cerrarModalCotizacion() {
