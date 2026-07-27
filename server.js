@@ -777,8 +777,129 @@ app.post('/api/enviar-cotizacion', limiteCotizacion, async (req, res) => {
   }
 });
 
-// ---------- sitio estático (el catálogo) ----------
-app.use(express.static('public'));
+// ---------- SEO: título/descripción/JSON-LD dinámicos según la categoría ----------
+// Mismas 8 macro-categorías que usa el frontend (public/index.html), con sus
+// slugs para las URLs tipo /?categoria=barreras-de-plomo. Si mañana cambian
+// las categorías reales, hay que actualizar esta lista en ambos lados.
+const SITE_URL = 'https://catalogo-phillips.onrender.com';
+const MACRO_CATEGORIAS_SEO = [
+  { nombre: 'Repisas para Delantales', slug: 'repisas-para-delantales', match: /repisa|rack|soporte/i },
+  { nombre: 'Delantales Plomados', slug: 'delantales-plomados', match: /delantal|gonad|tiroide|gorro|manta|desechable|accesorio/i },
+  { nombre: 'Lentes Plomados', slug: 'lentes-plomados', match: /lentes plomados|lead glasses/i },
+  { nombre: 'Barreras de Plomo', slug: 'barreras-de-plomo', match: /barrera/i },
+  { nombre: 'Señalética de Radiación', slug: 'senaletica-de-radiacion', match: /señal|sign/i },
+  { nombre: 'Medicina Nuclear', slug: 'medicina-nuclear', match: /nuclear/i },
+  { nombre: 'Bloqueadores de Plomo', slug: 'bloqueadores-de-plomo', match: /bloquead/i },
+  { nombre: 'Marcadores Radiográficos', slug: 'marcadores-radiograficos', match: /marcador/i },
+];
+
+function macroDeSeccionSeo(seccion){
+  return MACRO_CATEGORIAS_SEO.find(m => m.match.test(seccion || '')) || null;
+}
+
+let plantillaHtml = null;
+function cargarPlantilla(){
+  if (!plantillaHtml){
+    plantillaHtml = require('fs').readFileSync(require('path').join(__dirname, 'public', 'index.html'), 'utf8');
+  }
+  return plantillaHtml;
+}
+
+function escapeHtmlSeo(valor){
+  return String(valor ?? '')
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
+
+app.get('/', async (req, res) => {
+  try {
+    const slug = String(req.query.categoria || '').trim();
+    const macro = slug ? MACRO_CATEGORIAS_SEO.find(m => m.slug === slug) : null;
+
+    let productosCatalogo = [];
+    try {
+      const { datos } = await cargarProductos();
+      productosCatalogo = datos || [];
+    } catch (e) {
+      console.error('No se pudo cargar el catálogo para SEO (se sirve la página igual):', e.message);
+    }
+
+    // Conteo real de productos por macro-categoría (para el bloque pre-renderizado y JSON-LD)
+    const conteoPorMacro = {};
+    productosCatalogo.forEach(p => {
+      const m = macroDeSeccionSeo(p.seccion);
+      const key = m ? m.nombre : 'Otros';
+      conteoPorMacro[key] = (conteoPorMacro[key] || 0) + 1;
+    });
+
+    const tituloBase = 'Quantical | Distribuidor Oficial Phillips Safety — Protección Radiológica Chile';
+    const descBase = 'Quantical — Distribuidor oficial de Phillips Safety Products en Chile. Equipos de protección radiológica Made in USA: delantales plomados, lentes, barreras, medicina nuclear.';
+
+    const titulo = macro
+      ? `${macro.nombre} Phillips Safety Chile — Cotiza con Quantical`
+      : tituloBase;
+    const descripcion = macro
+      ? (() => {
+          const n = conteoPorMacro[macro.nombre] || 0;
+          return `Cotiza ${macro.nombre.toLowerCase()} originales Phillips Safety en Chile. ${n} producto${n !== 1 ? 's' : ''} disponible${n !== 1 ? 's' : ''}, distribución directa Quantical.`;
+        })()
+      : descBase;
+    const canonical = macro ? `${SITE_URL}/?categoria=${macro.slug}` : `${SITE_URL}/`;
+
+    // Bloque de texto real (visible para buscadores) con las 8 categorías y
+    // sus cantidades — así un crawler ve contenido aunque no ejecute el JS.
+    const listaCategoriasHtml = MACRO_CATEGORIAS_SEO.map(m =>
+      `<li>${escapeHtmlSeo(m.nombre)}: ${conteoPorMacro[m.nombre] || 0} productos disponibles — <a href="/?categoria=${m.slug}">ver ${escapeHtmlSeo(m.nombre.toLowerCase())}</a></li>`
+    ).join('');
+    const seoPrerender = `
+      <h1>Quantical — Distribuidor oficial Phillips Safety en Chile</h1>
+      <p>Equipos de protección radiológica Phillips Safety Products (USA) para hospitales, clínicas y centros de imagenología en Chile.</p>
+      <h2>Categorías de productos</h2>
+      <ul>${listaCategoriasHtml}</ul>
+    `;
+
+    // JSON-LD: entidad Organization + catálogo de categorías como ItemList
+    const jsonLd = {
+      '@context': 'https://schema.org',
+      '@graph': [
+        {
+          '@type': 'Organization',
+          name: 'Quantical',
+          url: SITE_URL,
+          logo: `${SITE_URL}/logos/quantical.png`,
+          description: descBase,
+          areaServed: 'CL'
+        },
+        {
+          '@type': 'ItemList',
+          itemListElement: MACRO_CATEGORIAS_SEO.map((m, i) => ({
+            '@type': 'ListItem',
+            position: i + 1,
+            name: m.nombre,
+            url: `${SITE_URL}/?categoria=${m.slug}`
+          }))
+        }
+      ]
+    };
+
+    let html = cargarPlantilla();
+    html = html
+      .replace(/__SEO_TITLE__/g, escapeHtmlSeo(titulo))
+      .replace(/__SEO_DESCRIPTION__/g, escapeHtmlSeo(descripcion))
+      .replace(/__SEO_CANONICAL__/g, escapeHtmlSeo(canonical))
+      .replace('__SEO_JSONLD__', `<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>`)
+      .replace('__SEO_PRERENDER__', seoPrerender);
+
+    res.set('Content-Type', 'text/html; charset=utf-8');
+    res.send(html);
+  } catch (e) {
+    console.error('Error sirviendo la home:', e);
+    res.sendFile(require('path').join(__dirname, 'public', 'index.html'));
+  }
+});
+
+// ---------- sitio estático (logos, robots.txt, sitemap.xml, etc.) ----------
+app.use(express.static('public', { index: false }));
 
 app.listen(PORT, () => {
   console.log(`Servidor Phillips escuchando en el puerto ${PORT}`);

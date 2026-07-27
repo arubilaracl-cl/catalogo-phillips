@@ -3,14 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Quantical — Distribuidor oficial de Phillips Safety Products en Chile. Equipos de protección radiológica Made in USA: delantales plomados, lentes, barreras, medicina nuclear.">
+    <meta name="description" content="__SEO_DESCRIPTION__">
     <meta name="keywords" content="protección radiológica, delantales plomados, lentes plomados, Phillips Safety, Chile, hospitales, radiología">
-    <title>Quantical | Distribuidor Oficial Phillips Safety — Protección Radiológica Chile</title>
-    <meta property="og:title" content="Quantical | Distribuidor Oficial Phillips Safety">
-    <meta property="og:description" content="Equipos de protección radiológica Phillips Safety para hospitales y clínicas en Chile: delantales plomados, lentes, barreras, medicina nuclear y más.">
-    <meta property="og:image" content="/logos/quantical.png">
+    <title>__SEO_TITLE__</title>
+    <meta property="og:title" content="__SEO_TITLE__">
+    <meta property="og:description" content="__SEO_DESCRIPTION__">
+    <meta property="og:image" content="https://catalogo-phillips.onrender.com/logos/quantical.png">
     <meta property="og:type" content="website">
+    <meta property="og:locale" content="es_CL">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="__SEO_TITLE__">
+    <meta name="twitter:description" content="__SEO_DESCRIPTION__">
+    <link rel="canonical" href="__SEO_CANONICAL__">
     <link rel="icon" href="/logos/quantical.png" type="image/png">
+    __SEO_JSONLD__
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -820,6 +826,12 @@
     </style>
 </head>
 <body>
+    <!-- Contenido pre-renderizado por el servidor para buscadores: se ve al
+         instante (sin esperar a que cargue el JS), y queda visualmente oculto
+         una vez que el catálogo interactivo termina de cargar. -->
+    <div id="seo-prerender" style="position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap;">
+        __SEO_PRERENDER__
+    </div>
     <!-- HEADER -->
     <header class="header-main">
         <div class="header-container">
@@ -1035,8 +1047,9 @@
                 const data = await res.json();
                 productos = data.productos || [];
                 document.getElementById('loading-productos').style.display = 'none';
-                renderizarProductos(productos);
+                preseleccionarCategoriaDesdeUrl();
                 renderizarCategorias();
+                renderizarProductos(productosFiltradosActuales());
             } catch (e) {
                 console.error('Error productos:', e);
                 document.getElementById('loading-productos').innerHTML = 
@@ -1058,21 +1071,21 @@
             // la primera coincidencia. "Repisas para delantales..." contiene la
             // palabra "delantal", así que hay que revisar Repisas ANTES que
             // Delantales para que no se la robe por error.
-            { tier: 2, nombre: 'Repisas para Delantales', match: /repisa|rack|soporte/i,
+            { tier: 2, nombre: 'Repisas para Delantales', slug: 'repisas-para-delantales', match: /repisa|rack|soporte/i,
               icon: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="7" rx="1"/><rect x="3" y="14" width="18" height="7" rx="1"/><path d="M7 10v4M17 10v4"/></svg>' },
-            { tier: 1, nombre: 'Delantales Plomados', match: /delantal|gonad|tiroide|gorro|manta|desechable|accesorio/i,
+            { tier: 1, nombre: 'Delantales Plomados', slug: 'delantales-plomados', match: /delantal|gonad|tiroide|gorro|manta|desechable|accesorio/i,
               icon: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c-2 2-3 4-3 7v11a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2V9c0-3-1-5-3-7z"/><path d="M6 9H3a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h3M18 9h3a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-3"/></svg>' },
-            { tier: 1, nombre: 'Lentes Plomados', match: /lentes plomados|lead glasses/i,
+            { tier: 1, nombre: 'Lentes Plomados', slug: 'lentes-plomados', match: /lentes plomados|lead glasses/i,
               icon: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="15" r="4"/><circle cx="18" cy="15" r="4"/><path d="M10 15h4M2 15l3-9h2M22 15l-3-9h-2"/></svg>' },
-            { tier: 1, nombre: 'Barreras de Plomo', match: /barrera/i,
+            { tier: 1, nombre: 'Barreras de Plomo', slug: 'barreras-de-plomo', match: /barrera/i,
               icon: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>' },
-            { tier: 2, nombre: 'Señalética de Radiación', match: /señal|sign/i,
+            { tier: 2, nombre: 'Señalética de Radiación', slug: 'senaletica-de-radiacion', match: /señal|sign/i,
               icon: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a1.5 1.5 0 0 0 1.3 2.3h17.8a1.5 1.5 0 0 0 1.3-2.3L13.7 3.9a1.5 1.5 0 0 0-2.6 0z"/><path d="M12 9v4M12 16.5h.01"/></svg>' },
-            { tier: 2, nombre: 'Medicina Nuclear', match: /nuclear/i,
+            { tier: 2, nombre: 'Medicina Nuclear', slug: 'medicina-nuclear', match: /nuclear/i,
               icon: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><path d="M12 2v6M12 16v6M4.2 7l5.2 3M14.6 14l5.2 3M4.2 17l5.2-3M14.6 10l5.2-3"/></svg>' },
-            { tier: 2, nombre: 'Bloqueadores de Plomo', match: /bloquead/i,
+            { tier: 2, nombre: 'Bloqueadores de Plomo', slug: 'bloqueadores-de-plomo', match: /bloquead/i,
               icon: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>' },
-            { tier: 2, nombre: 'Marcadores Radiográficos', match: /marcador/i,
+            { tier: 2, nombre: 'Marcadores Radiográficos', slug: 'marcadores-radiograficos', match: /marcador/i,
               icon: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.59 3.24L3 3v6.59a2 2 0 0 0 .59 1.41l9.59 9.59a2 2 0 0 0 2.82 0l4.59-4.59a2 2 0 0 0 0-2.99z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>' },
         ];
         const ICONO_GENERICO = '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M3 7l2-4h14l2 4"/></svg>';
@@ -1105,11 +1118,13 @@
             }
 
             const tarjeta = (nombre, tier) => {
-                const icon = tier === 2 && nombre === 'Otros' ? ICONO_GENERICO : (MACRO_CATEGORIAS.find(m => m.nombre === nombre)?.icon || ICONO_GENERICO);
+                const macroInfo = MACRO_CATEGORIAS.find(m => m.nombre === nombre);
+                const icon = tier === 2 && nombre === 'Otros' ? ICONO_GENERICO : (macroInfo?.icon || ICONO_GENERICO);
+                const slug = macroInfo?.slug || 'otros';
                 const cantidad = conteoPorMacro[nombre] || 0;
                 if (!cantidad) return '';
                 return `
-                    <div class="categoria-card nivel-${tier} ${nombre === categoriaActiva ? 'activa' : ''}" data-categoria="${nombre.replace(/"/g, '&quot;')}">
+                    <div class="categoria-card nivel-${tier} ${nombre === categoriaActiva ? 'activa' : ''}" data-categoria="${nombre.replace(/"/g, '&quot;')}" data-slug="${slug}">
                         <span class="categoria-icon">${icon}</span>
                         <h3>${escapeHtml(nombre)}</h3>
                         <span class="categoria-cantidad">${cantidad} producto${cantidad !== 1 ? 's' : ''}</span>
@@ -1185,12 +1200,39 @@
                 const card = e.target.closest('.categoria-card');
                 if (!card) return;
                 const cat = card.dataset.categoria;
+                const slug = card.dataset.slug;
                 // Tocar la misma categoría activa la desactiva (muestra todo de nuevo)
-                categoriaActiva = (categoriaActiva === cat) ? '' : cat;
+                const activando = categoriaActiva !== cat;
+                categoriaActiva = activando ? cat : '';
+                actualizarUrlCategoria(activando ? slug : null);
                 renderizarCategorias();
                 aplicarFiltros();
                 document.getElementById('productos').scrollIntoView({ behavior: 'smooth' });
             });
+
+            // Atrás/adelante del navegador: vuelve a leer la categoría de la URL
+            window.addEventListener('popstate', () => {
+                preseleccionarCategoriaDesdeUrl();
+                renderizarCategorias();
+                aplicarFiltros();
+            });
+        }
+
+        function actualizarUrlCategoria(slug) {
+            const url = new URL(window.location.href);
+            if (slug) url.searchParams.set('categoria', slug);
+            else url.searchParams.delete('categoria');
+            history.pushState({}, '', url);
+        }
+
+        // Al cargar la página (o navegar atrás/adelante), si la URL trae
+        // ?categoria=<slug>, preselecciona esa macro-categoría automáticamente.
+        // Esto es lo que permite que un link a una categoría específica
+        // (compartido o indexado por Google) abra directo con ese filtro aplicado.
+        function preseleccionarCategoriaDesdeUrl() {
+            const slug = new URLSearchParams(window.location.search).get('categoria');
+            const macro = slug ? MACRO_CATEGORIAS.find(m => m.slug === slug) : null;
+            categoriaActiva = macro ? macro.nombre : '';
         }
 
         // ===== CARRITO =====
