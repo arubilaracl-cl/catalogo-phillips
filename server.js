@@ -337,7 +337,29 @@ const FOTO_SKU = {
   'RG-33-BK-50SS': 'https://phillips-safety.com/wp-content/uploads/2023/01/RG-33-BK07-scaled.jpg',
   'RG-33-T-50SS': 'https://phillips-safety.com/wp-content/uploads/2023/01/RG-33-T07-scaled.jpg',
   'RG-206-OB-50SS': 'https://phillips-safety.com/wp-content/uploads/2023/01/RG-206-OB-BULK-6-scaled.jpg',
-  'RG-500-49GM-50SS': 'https://phillips-safety.com/wp-content/uploads/2023/01/RG-500-49GM-50SS-scaled.jpg'
+  'RG-500-49GM-50SS': 'https://phillips-safety.com/wp-content/uploads/2023/01/RG-500-49GM-50SS-scaled.jpg',
+
+  // Barreras de plomo
+  'LB-2436': 'https://phillips-safety.com/wp-content/uploads/2022/12/LB-2436-RENDERS-2.14-scaled.jpg',
+  'LB-2436-ACR': 'https://phillips-safety.com/wp-content/uploads/2022/12/LB-2436-RENDERS-2.14-scaled.jpg',
+
+  // Repisas para delantales
+  'RAR-500L': 'https://phillips-safety.com/wp-content/uploads/2022/12/RAR-500-Right-side.jpg',
+  'RAR-500R': 'https://phillips-safety.com/wp-content/uploads/2022/12/RAR-500-Right-side.jpg',
+
+  // Señalética de radiación
+  'RD-WS-M-005-BK': 'https://phillips-safety.com/wp-content/uploads/2022/12/RD-WS-M-005-BK.jpg',
+  'RD-WS-M-005-R': 'https://phillips-safety.com/wp-content/uploads/2022/12/RD-WS-M-005-R.jpg',
+  'RD-WS-P-005-BK': 'https://phillips-safety.com/wp-content/uploads/2022/12/RD-WS-M-005-BK.jpg',
+  'RD-WS-P-005-R': 'https://phillips-safety.com/wp-content/uploads/2022/12/RD-WS-M-005-R.jpg',
+
+  // Medicina nuclear (Ergo L-Block Shield, las 3 variantes de espesor)
+  'RAD-L-25W-0.5S': 'https://phillips-safety.com/wp-content/uploads/2024/06/RAD-L_809A7976-scaled.jpg',
+  'RAD-L-50W-0.5S': 'https://phillips-safety.com/wp-content/uploads/2024/06/RAD-L_809A7976-scaled.jpg',
+  'RAD-L-80W-1.0S': 'https://phillips-safety.com/wp-content/uploads/2024/06/RAD-L_809A7976-scaled.jpg',
+
+  // Marcadores radiográficos
+  'LM-005': 'https://phillips-safety.com/wp-content/uploads/2022/12/LM-005.jpg'
 };
 
 // Respaldo por TIPO de marco (columna "Type:" de la pestaña Radiation Glasses):
@@ -355,6 +377,23 @@ function fotoTipoDe(tipo){
 
 function fotoDe(sku){
   return FOTO_SKU[sku] || null;
+}
+
+// Respaldo por CATEGORÍA: si el SKU exacto de un producto de Barreras, Repisas,
+// Señalética, Medicina Nuclear o Marcadores no está mapeado uno a uno, se usa
+// la foto real de un producto representativo de esa misma categoría — mejor
+// que dejarlo sin imagen. (Bloqueadores de plomo todavía no tiene foto real.)
+const FOTO_CATEGORIA = [
+  { match: /barrera/i, foto: 'https://phillips-safety.com/wp-content/uploads/2022/12/LB-2436-RENDERS-2.14-scaled.jpg' },
+  { match: /repisa/i, foto: 'https://phillips-safety.com/wp-content/uploads/2022/12/RAR-500-Right-side.jpg' },
+  { match: /señal/i, foto: 'https://phillips-safety.com/wp-content/uploads/2022/12/RD-WS-M-005-BK.jpg' },
+  { match: /nuclear/i, foto: 'https://phillips-safety.com/wp-content/uploads/2024/06/RAD-L_809A7976-scaled.jpg' },
+  { match: /marcador/i, foto: 'https://phillips-safety.com/wp-content/uploads/2022/12/LM-005.jpg' },
+];
+
+function fotoCategoriaDe(seccion){
+  const encontrada = FOTO_CATEGORIA.find(c => c.match.test(seccion || ''));
+  return encontrada ? encontrada.foto : null;
 }
 
 function traducirEtiquetaOpcion(etiqueta){
@@ -461,7 +500,7 @@ function parsearPestaña(filas, nombrePestaña){
       material: materialFinal,
       tela: colTela >= 0 ? (fila[colTela] || '').trim() : '',
       opciones,
-      foto: fotoDe(sku) || fotoTipoDe(tipoActual),
+      foto: fotoDe(sku) || fotoTipoDe(tipoActual) || fotoCategoriaDe(t.seccion),
       precioUsd
     });
   }
