@@ -527,6 +527,48 @@
         .confianza-item h3 { color: var(--phillips); margin-bottom: 0.5rem; font-size: 1.1rem; }
         .confianza-item p { color: var(--gris-suave); font-size: 0.9rem; }
 
+        .intro-section {
+            background: white;
+            padding: 2.5rem 20px;
+            border-bottom: 1px solid var(--borde);
+        }
+
+        .intro-container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .intro-container h2 {
+            color: var(--phillips);
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+        }
+
+        .intro-container p {
+            color: var(--gris-texto);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin-bottom: 0.8rem;
+        }
+
+        .intro-container strong { color: var(--quantica-dark); }
+
+        .categoria-descripcion {
+            display: none;
+            background: #f0f7f8;
+            border-left: 4px solid var(--quantica);
+            border-radius: 6px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            color: var(--gris-texto);
+            line-height: 1.6;
+        }
+
+        .categoria-descripcion.visible { display: block; }
+        .categoria-descripcion strong { color: var(--phillips); }
+
         /* ===== FOOTER ===== */
         .footer {
             background: var(--phillips);
@@ -887,9 +929,32 @@
         </div>
     </div>
 
+    <!-- INTRODUCCIÓN (contenido visible, no solo para buscadores) -->
+    <section class="intro-section">
+        <div class="intro-container">
+            <h2>Distribuidor de Protección Radiológica Phillips Safety en Chile</h2>
+            <p>
+                Quantical es distribuidor de <strong>Phillips Safety Products</strong> (Estados Unidos) para el
+                mercado chileno de <strong>protección radiológica</strong>. Trabajamos directo con hospitales,
+                clínicas, centros de imagenología y servicios de radiología intervencional, ofreciendo
+                <strong>delantales plomados</strong>, <strong>lentes plomados</strong>, barreras de plomo,
+                señalética de radiación, equipos para medicina nuclear y accesorios de blindaje — todo con
+                precio calculado en tiempo real según tipo de cambio, sin intermediarios.
+            </p>
+            <p>
+                Ya sea que necesites un delantal plomado para un pabellón de hemodinamia, lentes plomados
+                para tu equipo de radiología intervencional, o una barrera de plomo para un proyecto
+                institucional completo, cotiza directo desde el catálogo y recibe la respuesta de nuestro
+                equipo comercial.
+            </p>
+        </div>
+    </section>
+
     <!-- PRODUCTOS -->
     <section class="seccion" id="productos">
         <h2 class="section-title">Catálogo de Productos</h2>
+
+        <div id="categoria-descripcion" class="categoria-descripcion"></div>
 
         <div class="filtros-container">
             <div class="filtros-grid">
@@ -1099,6 +1164,22 @@
 
         let categoriaActiva = ''; // nombre de la macro-categoría activa (o '')
 
+        // Descripción visible (con densidad natural de palabra clave) que se
+        // muestra arriba del catálogo cuando hay una macro-categoría activa —
+        // mismo patrón que usan los competidores locales de protección
+        // radiológica, pero con contenido honesto (sin certificaciones que no
+        // podemos respaldar por producto).
+        const DESCRIPCION_CATEGORIA = {
+            'Delantales Plomados': 'Delantales plomados Phillips Safety para protección radiológica en radiología intervencional, hemodinamia y pabellones quirúrgicos. Incluye modelos Quickship y a medida, protectores gonadales y tiroideos, gorros y mantas plomadas — todos originales, importados directo desde Estados Unidos.',
+            'Lentes Plomados': 'Lentes plomados para protección ocular en procedimientos con radiaciones ionizantes (fluoroscopía, angiografía, radiología intervencional). Catálogo Phillips Safety, Nike, Ray-Ban y Wiley X, en distintos tipos de marco: económico, fitover, antiparras, envolvente y metálico.',
+            'Barreras de Plomo': 'Barreras de plomo móviles y fijas para blindaje radiológico en salas de rayos X, hemodinamia y radiología intervencional. Ideales para proyectos institucionales de hospitales y clínicas que requieren protección radiológica certificada.',
+            'Repisas para Delantales': 'Repisas y colgadores para el almacenamiento correcto de delantales plomados — prolongan la vida útil del blindaje radiológico y ordenan el pabellón o sala de rayos X.',
+            'Señalética de Radiación': 'Señalética de radiación (magnética, iluminada, serigrafiada) para cumplimiento normativo en salas de rayos X, medicina nuclear y radiología intervencional en Chile.',
+            'Medicina Nuclear': 'Equipos de blindaje para medicina nuclear: protectores tipo L-Block, contenedores de residuos radiactivos, carros de inyección y protectores de jeringa para servicios de medicina nuclear.',
+            'Bloqueadores de Plomo': 'Bloqueadores de plomo para calibración y control de calidad en equipos de radiología, usados en servicios de física médica y protección radiológica.',
+            'Marcadores Radiográficos': 'Marcadores radiográficos plomados (derecha/izquierda) para identificación correcta en radiología general y radiología intervencional.'
+        };
+
         function renderizarCategorias(){
             const grid = document.getElementById('categorias-grid');
             const conteoPorMacro = {};
@@ -1140,6 +1221,17 @@
                 <div class="categorias-nivel1">${nivel1Html}</div>
                 <div class="categorias-nivel2">${nivel2Html}</div>
             `;
+
+            // Mostrar/ocultar el texto descriptivo según la categoría activa
+            const descDiv = document.getElementById('categoria-descripcion');
+            const texto = DESCRIPCION_CATEGORIA[categoriaActiva];
+            if (texto) {
+                descDiv.innerHTML = `<strong>${escapeHtml(categoriaActiva)}:</strong> ${escapeHtml(texto)}`;
+                descDiv.classList.add('visible');
+            } else {
+                descDiv.classList.remove('visible');
+                descDiv.innerHTML = '';
+            }
         }
 
         // ===== RENDERIZADO =====

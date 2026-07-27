@@ -783,14 +783,22 @@ app.post('/api/enviar-cotizacion', limiteCotizacion, async (req, res) => {
 // las categorías reales, hay que actualizar esta lista en ambos lados.
 const SITE_URL = 'https://catalogo-phillips.onrender.com';
 const MACRO_CATEGORIAS_SEO = [
-  { nombre: 'Repisas para Delantales', slug: 'repisas-para-delantales', match: /repisa|rack|soporte/i },
-  { nombre: 'Delantales Plomados', slug: 'delantales-plomados', match: /delantal|gonad|tiroide|gorro|manta|desechable|accesorio/i },
-  { nombre: 'Lentes Plomados', slug: 'lentes-plomados', match: /lentes plomados|lead glasses/i },
-  { nombre: 'Barreras de Plomo', slug: 'barreras-de-plomo', match: /barrera/i },
-  { nombre: 'Señalética de Radiación', slug: 'senaletica-de-radiacion', match: /señal|sign/i },
-  { nombre: 'Medicina Nuclear', slug: 'medicina-nuclear', match: /nuclear/i },
-  { nombre: 'Bloqueadores de Plomo', slug: 'bloqueadores-de-plomo', match: /bloquead/i },
-  { nombre: 'Marcadores Radiográficos', slug: 'marcadores-radiograficos', match: /marcador/i },
+  { nombre: 'Repisas para Delantales', slug: 'repisas-para-delantales', match: /repisa|rack|soporte/i,
+    descripcion: 'Repisas y colgadores para el almacenamiento correcto de delantales plomados — prolongan la vida útil del blindaje radiológico y ordenan el pabellón o sala de rayos X.' },
+  { nombre: 'Delantales Plomados', slug: 'delantales-plomados', match: /delantal|gonad|tiroide|gorro|manta|desechable|accesorio/i,
+    descripcion: 'Delantales plomados Phillips Safety para protección radiológica en radiología intervencional, hemodinamia y pabellones quirúrgicos. Incluye modelos Quickship y a medida, protectores gonadales y tiroideos, gorros y mantas plomadas — todos originales, importados directo desde Estados Unidos.' },
+  { nombre: 'Lentes Plomados', slug: 'lentes-plomados', match: /lentes plomados|lead glasses/i,
+    descripcion: 'Lentes plomados para protección ocular en procedimientos con radiaciones ionizantes (fluoroscopía, angiografía, radiología intervencional). Catálogo Phillips Safety, Nike, Ray-Ban y Wiley X.' },
+  { nombre: 'Barreras de Plomo', slug: 'barreras-de-plomo', match: /barrera/i,
+    descripcion: 'Barreras de plomo móviles y fijas para blindaje radiológico en salas de rayos X, hemodinamia y radiología intervencional.' },
+  { nombre: 'Señalética de Radiación', slug: 'senaletica-de-radiacion', match: /señal|sign/i,
+    descripcion: 'Señalética de radiación (magnética, iluminada, serigrafiada) para cumplimiento normativo en salas de rayos X, medicina nuclear y radiología intervencional en Chile.' },
+  { nombre: 'Medicina Nuclear', slug: 'medicina-nuclear', match: /nuclear/i,
+    descripcion: 'Equipos de blindaje para medicina nuclear: protectores tipo L-Block, contenedores de residuos radiactivos, carros de inyección y protectores de jeringa.' },
+  { nombre: 'Bloqueadores de Plomo', slug: 'bloqueadores-de-plomo', match: /bloquead/i,
+    descripcion: 'Bloqueadores de plomo para calibración y control de calidad en equipos de radiología.' },
+  { nombre: 'Marcadores Radiográficos', slug: 'marcadores-radiograficos', match: /marcador/i,
+    descripcion: 'Marcadores radiográficos plomados (derecha/izquierda) para identificación correcta en radiología general e intervencional.' },
 ];
 
 function macroDeSeccionSeo(seccion){
@@ -854,6 +862,7 @@ app.get('/', async (req, res) => {
     const seoPrerender = `
       <h1>Quantical — Distribuidor oficial Phillips Safety en Chile</h1>
       <p>Equipos de protección radiológica Phillips Safety Products (USA) para hospitales, clínicas y centros de imagenología en Chile.</p>
+      ${macro ? `<h2>${escapeHtmlSeo(macro.nombre)}</h2><p>${escapeHtmlSeo(macro.descripcion)}</p>` : ''}
       <h2>Categorías de productos</h2>
       <ul>${listaCategoriasHtml}</ul>
     `;
