@@ -334,8 +334,7 @@ const FOTO_SKU = {
   // Lentes plomados (Fitover, Económico, Metálico) — el resto de tipos
   // (Antiparras, Plástico, Envolvente, Deportivo envolvente, Nike, protectores
   // faciales, combinados) aún no tiene foto mapeada, quedan pendientes.
-  'RG-33-BK-50SS': 'https://phillips-safety.com/wp-content/uploads/2023/01/RG-33-BK07-scaled.jpg',
-  'RG-33-T-50SS': 'https://phillips-safety.com/wp-content/uploads/2023/01/RG-33-T07-scaled.jpg',
+  // (SKU del modelo 33 corregido más abajo: la planilla real usa RG-AR-33-BK-50SS, no RG-33-BK-50SS/RG-33-T-50SS)
   'RG-206-OB-50SS': 'https://phillips-safety.com/wp-content/uploads/2023/01/RG-206-OB-BULK-6-scaled.jpg',
   'RG-500-49GM-50SS': 'https://phillips-safety.com/wp-content/uploads/2023/01/RG-500-49GM-50SS-scaled.jpg',
 
@@ -359,41 +358,93 @@ const FOTO_SKU = {
   'RAD-L-80W-1.0S': 'https://phillips-safety.com/wp-content/uploads/2024/06/RAD-L_809A7976-scaled.jpg',
 
   // Marcadores radiográficos
-  'LM-005': 'https://phillips-safety.com/wp-content/uploads/2022/12/LM-005.jpg'
+  'LM-005': 'https://phillips-safety.com/wp-content/uploads/2022/12/LM-005.jpg',
+
+  // Bloqueadores de plomo — variante 0.5mm (cada tamaño usa la misma foto de
+  // producto real, ya que solo cambian las dimensiones, no el diseño/color)
+  'LVB-4X10-0.5': 'https://phillips-safety.com/wp-content/uploads/2024/12/PS-Blockers_SIZES-COLORS_4x10_05.jpg',
+  'LVB-8X8-0.5': 'https://phillips-safety.com/wp-content/uploads/2024/12/PS-Blockers_SIZES-COLORS_4x10_05.jpg',
+  'LVB-8X10-0.5': 'https://phillips-safety.com/wp-content/uploads/2024/12/PS-Blockers_SIZES-COLORS_4x10_05.jpg',
+  'LVB-7X10-0.5': 'https://phillips-safety.com/wp-content/uploads/2024/12/PS-Blockers_SIZES-COLORS_4x10_05.jpg',
+  'LVB-10X10-0.5': 'https://phillips-safety.com/wp-content/uploads/2024/12/PS-Blockers_SIZES-COLORS_4x10_05.jpg',
+  'LVB-12X18-0.5': 'https://phillips-safety.com/wp-content/uploads/2024/12/PS-Blockers_SIZES-COLORS_4x10_05.jpg',
+  'LVB-13X15-0.5': 'https://phillips-safety.com/wp-content/uploads/2024/12/PS-Blockers_SIZES-COLORS_4x10_05.jpg',
+
+  // Lentes Nike 7056 (cada color exacto de este modelo específico)
+  'RG-NI-7056-001': 'https://phillips-safety.com/wp-content/uploads/2023/09/NI-7056-001-angle-left.jpg',
+  'RG-NI-7056-003': 'https://phillips-safety.com/wp-content/uploads/2023/09/NI-7056-003-angle-left.jpg',
+  'RG-NI-7056-036': 'https://phillips-safety.com/wp-content/uploads/2023/09/NI-7056-036-angle-left.jpg',
+  'RG-NI-7056N-423-53': 'https://phillips-safety.com/wp-content/uploads/2023/09/NI-7056-423-angle-left.jpg',
+
+  // Lentes plomados Phillips Safety — 57 modelos con foto real, extraídas
+  // del catálogo oficial en PDF que Andrés compartió, y alojadas en nuestro
+  // propio dominio (no en phillips-safety.com) para no exponer precios USA.
+  'RG-AR-33-BK-50SS': '/images/lentes/RG-AR-33-BK-50SS.jpg',
+  'RG-38-BK-50SS': '/images/lentes/RG-38-BK-50SS.jpg',
+  'RG-39-BK-50SS': '/images/lentes/RG-39-BK-50SS.jpg',
+  'RG-52-T-75SS': '/images/lentes/RG-52-T-75SS.jpg',
+  'RG-55': '/images/lentes/RG-55.jpg',
+  'RG-66-BK-50SS': '/images/lentes/RG-66-BK-50SS.jpg',
+  'RG-70-PC-50SS': '/images/lentes/RG-70-PC-50SS.jpg',
+  'RG-100-BK-56-50SS': '/images/lentes/RG-100-BK-56-50SS.jpg',
+  'RG-116-S': '/images/lentes/RG-116-S.jpg',
+  'RG-202-54GM-50SS': '/images/lentes/RG-202-54GM-50SS.jpg',
+  'RG-208-BK-PROG': '/images/lentes/RG-208-BK-PROG.jpg',
+  'RG-320-50GM-50SS': '/images/lentes/RG-320-50GM-50SS.jpg',
+  'RG-375-BK': '/images/lentes/RG-375-BK.jpg',
+  'RG-400-BK-54-50SS': '/images/lentes/RG-400-BK-54-50SS.jpg',
+  'RG-506-BK': '/images/lentes/RG-506-BK.jpg',
+  'RG-525-50SS': '/images/lentes/RG-525-50SS.jpg',
+  'RG-554-52BK-50SS': '/images/lentes/RG-554-52BK-50SS.jpg',
+  'RG-600-G-50SS': '/images/lentes/RG-600-G-50SS.jpg',
+  'RG-700-51GM-SV-50SS': '/images/lentes/RG-700-51GM-SV-50SS.jpg',
+  'RG-703-BF': '/images/lentes/RG-703-BF.jpg',
+  'RG-808-BK-SV': '/images/lentes/RG-808-BK-SV.jpg',
+  'RG-AR-901-BK': '/images/lentes/RG-AR-901-BK.jpg',
+  'RG-1171-BK': '/images/lentes/RG-1171-BK.jpg',
+  'RG-1362-BK': '/images/lentes/RG-1362-BK.jpg',
+  'RG-1388-BK-SV-50SS': '/images/lentes/RG-1388-BK-SV-50SS.jpg',
+  'RG-8483-BK': '/images/lentes/RG-8483-BK.jpg',
+  'RG-FF-15011-CP-50SS': '/images/lentes/RG-FF-15011-CP-50SS.jpg',
+  'RG-AR-16001-BKBL-SV': '/images/lentes/RG-AR-16001-BKBL-SV.jpg',
+  'RG-17001-BK': '/images/lentes/RG-17001-BK.jpg',
+  'RG-17011-BKOR-50SS': '/images/lentes/RG-17011-BKOR-50SS.jpg',
+  'RG-17012-BK-50SS': '/images/lentes/RG-17012-BK-50SS.jpg',
+  'RG-17007A-BK-50SS': '/images/lentes/RG-17007A-BK-50SS.jpg',
+  'RG-20020-BL-50SS': '/images/lentes/RG-20020-BL-50SS.jpg',
+  'RG-EX601B-BK-50SS': '/images/lentes/RG-EX601B-BK-50SS.jpg',
+  'RG-F10-CLR-SV-50SS': '/images/lentes/RG-F10-CLR-SV-50SS.jpg',
+  'RG-AR-F126-BK-PROG-50SS': '/images/lentes/RG-AR-F126-BK-PROG-50SS.jpg',
+  'RG-AR-J136-SV': '/images/lentes/RG-AR-J136-SV.jpg',
+  'RG-JY7-BK': '/images/lentes/RG-JY7-BK.jpg',
+  'RG-MX20-BK': '/images/lentes/RG-MX20-BK.jpg',
+  'RG-OP23-BK-SV': '/images/lentes/RG-OP23-BK-SV.jpg',
+  'RG-OP30-BK-50SS': '/images/lentes/RG-OP30-BK-50SS.jpg',
+  'RG-P820-BK': '/images/lentes/RG-P820-BK.jpg',
+  'RG12-AR-PTG-038': '/images/lentes/RG12-AR-PTG-038.jpg',
+  'RG-Q100-BK-PROG-50SS': '/images/lentes/RG-Q100-BK-PROG-50SS.jpg',
+  'RG-FF-Q200-BK-PROG-50SS': '/images/lentes/RG-FF-Q200-BK-PROG-50SS.jpg',
+  'RG-FF-Q300-BK-SV-50SS': '/images/lentes/RG-FF-Q300-BK-SV-50SS.jpg',
+  'RG-Q368-BKBL': '/images/lentes/RG-Q368-BKBL.jpg',
+  'RG-RK2-BK': '/images/lentes/RG-RK2-BK.jpg',
+  'RG-T9538S-BK-PROG-50SS': '/images/lentes/RG-T9538S-BK-PROG-50SS.jpg',
+  'RG-T9559-PK-50SS': '/images/lentes/RG-T9559-PK-50SS.jpg',
+  'RG-T9603-OR-50SS': '/images/lentes/RG-T9603-OR-50SS.jpg',
+  'RG-T9730-BKW-50SS': '/images/lentes/RG-T9730-BKW-50SS.jpg',
+  'RG-TP198-BK': '/images/lentes/RG-TP198-BK.jpg',
+  'RG-TP280-BKCA': '/images/lentes/RG-TP280-BKCA.jpg',
+  'RG-X25-BK-50SS': '/images/lentes/RG-X25-BK-50SS.jpg',
+  'RG-X26-BK-50SS': '/images/lentes/RG-X26-BK-50SS.jpg'
 };
 
-// Respaldo por TIPO de marco (columna "Type:" de la pestaña Radiation Glasses):
-// si el SKU exacto de un lente no está en FOTO_SKU pero conocemos su tipo,
-// usamos la foto representativa de ese tipo en vez de dejarlo sin imagen.
-const FOTO_TIPO = {
-  'ECONOMY': 'https://phillips-safety.com/wp-content/uploads/2023/01/RG-206-OB-BULK-6-scaled.jpg',
-  'FITOVER': 'https://phillips-safety.com/wp-content/uploads/2023/01/RG-33-BK07-scaled.jpg',
-  'METAL': 'https://phillips-safety.com/wp-content/uploads/2023/01/RG-500-49GM-50SS-scaled.jpg'
-};
-
-function fotoTipoDe(tipo){
-  return FOTO_TIPO[(tipo || '').toUpperCase().trim()] || null;
-}
-
+// NOTA: se eliminaron a propósito los respaldos genéricos "por tipo" y "por
+// categoría" que existían antes (mostraban la foto de OTRO producto de la
+// misma línea cuando no había foto exacta). Se decidió que eso da una mala
+// percepción — es preferible mostrar "Foto de referencia próximamente" que
+// una foto que no corresponde al producto real. Ahora solo se muestra foto
+// cuando el SKU tiene una coincidencia exacta en FOTO_SKU.
 function fotoDe(sku){
   return FOTO_SKU[sku] || null;
-}
-
-// Respaldo por CATEGORÍA: si el SKU exacto de un producto de Barreras, Repisas,
-// Señalética, Medicina Nuclear o Marcadores no está mapeado uno a uno, se usa
-// la foto real de un producto representativo de esa misma categoría — mejor
-// que dejarlo sin imagen. (Bloqueadores de plomo todavía no tiene foto real.)
-const FOTO_CATEGORIA = [
-  { match: /barrera/i, foto: 'https://phillips-safety.com/wp-content/uploads/2022/12/LB-2436-RENDERS-2.14-scaled.jpg' },
-  { match: /repisa/i, foto: 'https://phillips-safety.com/wp-content/uploads/2022/12/RAR-500-Right-side.jpg' },
-  { match: /señal/i, foto: 'https://phillips-safety.com/wp-content/uploads/2022/12/RD-WS-M-005-BK.jpg' },
-  { match: /nuclear/i, foto: 'https://phillips-safety.com/wp-content/uploads/2024/06/RAD-L_809A7976-scaled.jpg' },
-  { match: /marcador/i, foto: 'https://phillips-safety.com/wp-content/uploads/2022/12/LM-005.jpg' },
-];
-
-function fotoCategoriaDe(seccion){
-  const encontrada = FOTO_CATEGORIA.find(c => c.match.test(seccion || ''));
-  return encontrada ? encontrada.foto : null;
 }
 
 function traducirEtiquetaOpcion(etiqueta){
@@ -500,7 +551,7 @@ function parsearPestaña(filas, nombrePestaña){
       material: materialFinal,
       tela: colTela >= 0 ? (fila[colTela] || '').trim() : '',
       opciones,
-      foto: fotoDe(sku) || fotoTipoDe(tipoActual) || fotoCategoriaDe(t.seccion),
+      foto: fotoDe(sku),
       precioUsd
     });
   }
